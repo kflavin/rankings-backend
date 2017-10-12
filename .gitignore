@@ -99,3 +99,11 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+
+# sqlite
+*.sqlite
+*.sqlite3
+
+# intellij
+*.iml
