@@ -1,9 +1,9 @@
+from datetime import date
 from random import shuffle
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
-from datetime import date
 
 engine = create_engine('sqlite:///database.sqlite3', convert_unicode=True)
 db_session = scoped_session(sessionmaker(autocommit=False,
@@ -17,7 +17,7 @@ Base.query = session.query_property()
 
 
 def init_db():
-    from models import Week, User, Team, Submission, Ranking
+    from app.models import Week, User, Team, Submission, Ranking
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
