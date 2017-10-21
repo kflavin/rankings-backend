@@ -2,19 +2,19 @@ import graphene
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 
+from app.models import User as UserModel
 from app.models import Ranking as RankingModel
 from app.models import Submission as SubmissionModel
 from app.models import Team as TeamModel
-from app.models import User as UserModel
 from app.models import Week as WeekModel
-
 from app.database import session
+
+# from app.authentication import User, CreateUser
 
 class User(SQLAlchemyObjectType):
     class Meta:
         model = UserModel
         interfaces = (relay.Node,)
-
 
 class Team(SQLAlchemyObjectType):
     class Meta:
@@ -54,8 +54,8 @@ class CreateUser(graphene.Mutation):
 
 
         user = UserModel(name=input.get('name'),
-                    password=input.get('password'),
-                    active=input.get('active'))
+                         password=input.get('password'),
+                         active=input.get('active'))
 
         # user = User(name="kyle2", password="password", active=input.get('active'))
 
@@ -64,7 +64,6 @@ class CreateUser(graphene.Mutation):
         # return CreateUser(id=user.id, name=user.name, password=user.password, active=user.active)
         return CreateUser(user=user)
 
-
 class Mutation(graphene.AbstractType):
     # name = "Mutations"
     create_user = CreateUser.Field()
@@ -72,7 +71,7 @@ class Mutation(graphene.AbstractType):
 
 class Query(graphene.ObjectType):
     node = relay.Node.Field()
-    all_users = SQLAlchemyConnectionField(User)
+    # all_users = SQLAlchemyConnectionField(User)
     all_teams = SQLAlchemyConnectionField(Team)
     all_weeks = SQLAlchemyConnectionField(Week)
     all_submissions = SQLAlchemyConnectionField(Submission)
@@ -83,4 +82,5 @@ class Mutations(Mutation, graphene.ObjectType):
     pass
 
 schema = graphene.Schema(query=Query, mutation=Mutations, types=[User, Team, Week, Submission, Ranking])
+# schema = graphene.Schema(query=Query, mutation=Mutations, types=[Team, Week, Submission, Ranking])
 # schema = graphene.Schema(query=Query, mutation=Mutation)
