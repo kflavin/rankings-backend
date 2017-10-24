@@ -7,7 +7,6 @@ from app.database import db_session, init_db
 from app.schema import schema
 
 
-
 def create_app(config_name):
     app = Flask(__name__)
     bcrypt.init_app(app)
