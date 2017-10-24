@@ -9,7 +9,7 @@ from app.models import Team as TeamModel
 from app.models import Week as WeekModel
 from app.database import session
 
-from app.authentication import User, CreateUser, LoginUser
+from app.schema.auth import User, CreateUser, LoginUser
 
 # class User(SQLAlchemyObjectType):
 #     class Meta:
@@ -72,7 +72,7 @@ class Mutation(graphene.AbstractType):
 
 class Query(graphene.ObjectType):
     node = relay.Node.Field()
-    # all_users = SQLAlchemyConnectionField(User)
+    all_users = SQLAlchemyConnectionField(User)
     all_teams = SQLAlchemyConnectionField(Team)
     all_weeks = SQLAlchemyConnectionField(Week)
     all_submissions = SQLAlchemyConnectionField(Submission)
