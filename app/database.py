@@ -24,13 +24,17 @@ def init_db():
     # create fixtures
 
     # Add week
-    week1 = Week(date=date(2017, 10, 7))
-    session.add(week1)
+    week1 = Week(date=date(2017, 9, 1))
+    week2 = Week(date=date(2017, 10, 1))
+    week3 = Week(date=date(2017, 11, 1))
+    session.add_all([week1, week2, week3])
 
     # add users
     kyle = User(name="Kyle")
     frank = User(name="Frank")
     jeff = User(name="Jeff")
+    matt = User(name="Matt")
+    brian = User(name="Brian")
 
     session.add_all([kyle, frank, jeff])
 
@@ -38,7 +42,9 @@ def init_db():
     s1 = Submission(week=week1, user=kyle)
     s2 = Submission(week=week1, user=frank)
     s3 = Submission(week=week1, user=jeff)
-    session.add_all([s1, s2, s3])
+    s4 = Submission(week=week1, user=matt)
+    s5 = Submission(week=week1, user=brian)
+    session.add_all([s1, s2, s3, s4, s5])
 
     # add teams
     session.add_all(list(map(lambda x: Team(name=x), list("abcdefg"))))

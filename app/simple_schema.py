@@ -37,21 +37,31 @@ class Mutation(graphene.AbstractType):
 
 class Query(graphene.AbstractType):
     teams = graphene.List(Team)
-    weeks = graphene.List(Week)
-    submissions = graphene.List(Submission)
+    weeks = graphene.List(Week, id=graphene.Int())
+    submissions = graphene.List(Submission, id=graphene.Int())
     rankings = graphene.List(Ranking)
+
+    def resolve_submissions(self, args, context, info):
+        id = args.get('id')
+        if id:
+            return SubmissionModel.query.filter_by(id=args.get('id')).all()
+        else:
+            return SubmissionModel.query.all()
 
     @graphene.resolve_only_args
     def resolve_teams(self):
         return TeamModel.query.all()
 
-    @graphene.resolve_only_args
-    def resolve_weeks(self):
-        return WeekModel.query.all()
+    def resolve_weeks(self, args, context, info):
+        id = args.get('id')
+        if id:
+            return WeekModel.query.filter_by(id=args.get('id')).all()
+        else:
+            return WeekModel.query.all()
 
-    @graphene.resolve_only_args
-    def resolve_submissions(self):
-        return SubmissionModel.query.all()
+    # @graphene.resolve_only_args
+    # def resolve_submissions(self):
+    #     return SubmissionModel.query.all()
 
     @graphene.resolve_only_args
     def resolve_rankings(self):

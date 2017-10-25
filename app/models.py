@@ -26,7 +26,7 @@ class Team(Base):
 class Week(Base):
     __tablename__ = 'week'
     id = Column(Integer, primary_key=True)
-    date = Column(DateTime, default=func.now())
+    date = Column(Date, default=func.now())
 
     def __str__(self):
         return "<Week: {}>".format(self.date)
