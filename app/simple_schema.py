@@ -63,8 +63,11 @@ class Query(graphene.AbstractType):
     # def resolve_submissions(self):
     #     return SubmissionModel.query.all()
 
-    @graphene.resolve_only_args
-    def resolve_rankings(self):
+    # @graphene.resolve_only_args
+    # def resolve_rankings(self):
+    #     return RankingModel.query.all()
+
+    def resolve_rankings(self, args, context, info):
         return RankingModel.query.all()
 
 

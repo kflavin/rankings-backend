@@ -8,6 +8,7 @@ from flask_graphql import GraphQLView
 from app.database import db_session, init_db
 from app.relay_schema import schema as relay_schema
 from app.simple_schema import schema as simple_schema
+from app.schema.rankings import schema as exp_schema
 
 
 def create_app(config_name):
@@ -27,6 +28,12 @@ def create_app(config_name):
                      view_func=GraphQLView.as_view(
                          'simple',
                          schema=simple_schema,
+                         graphiql=True
+                     ))
+    app.add_url_rule('/exp',
+                     view_func=GraphQLView.as_view(
+                         'exp',
+                         schema=exp_schema,
                          graphiql=True
                      ))
 
