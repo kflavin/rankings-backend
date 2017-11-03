@@ -38,6 +38,7 @@ class CreateUser(graphene.Mutation):
 
 class LoginUser(graphene.Mutation):
     token = graphene.String()
+    userid = graphene.Int()
 
     class Input:
         username = graphene.String()
@@ -48,7 +49,7 @@ class LoginUser(graphene.Mutation):
         user = UserModel.query.filter_by(name=input.get('username')).first()
         if user:
             if user.verify_password(input.get('password')):
-                return LoginUser(token=user.encode_auth_token())
+                return LoginUser(token=user.encode_auth_token(), userid=user.id)
 
         raise Exception("Invalid User")
 
