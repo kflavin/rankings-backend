@@ -108,3 +108,7 @@ ENV/
 # intellij
 *.iml
 *.idea
+
+# vim
+*.swp
+*.swo
