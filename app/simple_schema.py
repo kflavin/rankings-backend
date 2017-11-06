@@ -40,6 +40,10 @@ class Query(graphene.AbstractType):
     weeks = graphene.List(Week, id=graphene.Int())
     submissions = graphene.List(Submission, id=graphene.Int())
     rankings = graphene.List(Ranking)
+    current_week = graphene.Field(Week)
+
+    def resolve_current_week(self, args, context, info):
+        return WeekModel.query.order_by(WeekModel.date.desc()).first()
 
     def resolve_submissions(self, args, context, info):
         id = args.get('id')

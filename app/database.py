@@ -33,12 +33,16 @@ def init_db():
     week3 = Week(date=date(2017, 11, 1))
     session.add_all([week1, week2, week3])
 
+    Week.new()
+
     # add users
     kyle = User(name="Kyle")
     frank = User(name="Frank")
     jeff = User(name="Jeff")
     matt = User(name="Matt")
     brian = User(name="Brian")
+
+    kyle.set_password("blah")
 
     session.add_all([kyle, frank, jeff])
 

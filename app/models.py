@@ -28,6 +28,13 @@ class Week(Base):
     id = Column(Integer, primary_key=True)
     date = Column(Date, default=func.now())
 
+    @staticmethod
+    def new():
+        w = Week()
+        session.add(w)
+        session.commit()
+        return w
+
     def __str__(self):
         return "<Week: {}>".format(self.date)
 
