@@ -8,6 +8,7 @@ from app.models import Team as TeamModel
 from app.models import Week as WeekModel
 
 from app.schema.auth import User, CreateUser, LoginUser
+from app.schema.submission import Submission, CreateSubmission
 
 
 class Team(SQLAlchemyObjectType):
@@ -20,9 +21,9 @@ class Week(SQLAlchemyObjectType):
         model = WeekModel
 
 
-class Submission(SQLAlchemyObjectType):
-    class Meta:
-        model = SubmissionModel
+# class Submission(SQLAlchemyObjectType):
+#     class Meta:
+#         model = SubmissionModel
 
 
 class Ranking(SQLAlchemyObjectType):
@@ -33,6 +34,7 @@ class Ranking(SQLAlchemyObjectType):
 class Mutation(graphene.AbstractType):
     create_user = CreateUser.Field()
     login_user = LoginUser.Field()
+    create_submission = CreateSubmission.Field()
 
 
 class Query(graphene.AbstractType):
