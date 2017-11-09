@@ -54,6 +54,13 @@ class Submission(Base):
     user = relationship("User", backref=backref('submissions', uselist=True,
                                               cascade='delete,all'))
 
+    def display(self):
+        if self.rankings:
+            print("Week: %s, User: %s" % (self.week.date, self.user.name))
+            for ranking in self.rankings:
+                print("Ranking: %s, Team: %s" % (ranking.position, ranking.team.name))
+
+
     def __str__(self):
         return "<Submission: {} {} {}>".format(self.id, self.user, self.week)
 

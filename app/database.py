@@ -43,6 +43,10 @@ def init_db():
     brian = User(name="Brian")
 
     kyle.set_password("blah")
+    frank.set_password("blah")
+    jeff.set_password("blah")
+    matt.set_password("blah")
+    brian.set_password("blah")
 
     session.add_all([kyle, frank, jeff])
 
