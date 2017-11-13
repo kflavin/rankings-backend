@@ -7,6 +7,12 @@ from app.models import (Submission as SubmissionModel, Week as WeekModel, User a
 from app.database import session
 
 
+def get_submission(user):
+    # submission = SubmissionModel.query.filter(UserModel.name == user.name).first()
+    current_week = WeekModel.query.order_by(WeekModel.date.desc()).first()
+    submission = SubmissionModel.query.join(WeekModel).filter(WeekModel.id == current_week.id).join(UserModel).filter(UserModel.name == user.name).first()
+    return submission
+
 class Submission(SQLAlchemyObjectType):
     class Meta:
         model = SubmissionModel

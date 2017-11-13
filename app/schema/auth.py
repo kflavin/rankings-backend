@@ -4,6 +4,26 @@ from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from app.models import User as UserModel
 from app.database import session
 
+def get_user(context):
+    header = context.headers.get('Authorization')
+
+    print("header is: " + header)
+    if header:
+        token = header.split(" ")[1]
+        print("token is " + token)
+
+        userid = UserModel.decode_auth_token(token)
+        if isinstance(userid, int) and userid > 0:
+            print("Decoded user id: " + str(userid))
+            user = UserModel.query.filter_by(id=userid).first()
+            if user:
+                print("found user: " + str(user))
+                return user
+        else:
+            print("userid not found " + str(userid))
+    else:
+        print("not found")
+    return None
 
 class User(SQLAlchemyObjectType):
     class Meta:
@@ -49,7 +69,7 @@ class LoginUser(graphene.Mutation):
         user = UserModel.query.filter_by(name=input.get('username')).first()
         if user:
             if user.verify_password(input.get('password')):
-                return LoginUser(token=user.encode_auth_token(), userid=user.id)
+                return LoginUser(token=user.encode_auth_token().decode(), userid=user.id)
 
         raise Exception("Invalid User")
 

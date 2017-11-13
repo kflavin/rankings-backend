@@ -7,8 +7,10 @@ from app.models import Submission as SubmissionModel
 from app.models import Team as TeamModel
 from app.models import Week as WeekModel
 
-from app.schema.auth import User, CreateUser, LoginUser
-from app.schema.submission import Submission, CreateSubmission
+from flask import request
+
+from app.schema.auth import User, CreateUser, LoginUser, get_user
+from app.schema.submission import Submission, CreateSubmission, get_submission
 
 
 class Team(SQLAlchemyObjectType):
@@ -43,6 +45,7 @@ class Query(graphene.AbstractType):
     submissions = graphene.List(Submission, id=graphene.Int())
     rankings = graphene.List(Ranking)
     current_week = graphene.Field(Week)
+    my_submission = graphene.Field(Submission)
 
     def resolve_current_week(self, args, context, info):
         return WeekModel.query.order_by(WeekModel.date.desc()).first()
@@ -75,6 +78,19 @@ class Query(graphene.AbstractType):
 
     def resolve_rankings(self, args, context, info):
         return RankingModel.query.all()
+
+    # def resolve_my_submission(self, args, context, info):
+    def resolve_my_submission(self, args, context, info):
+        user = get_user(context)
+        if user:
+            print("User is : " + str(user))
+            submission = get_submission(user)
+            
+            if submission:
+                print("Submission is : " + str(submission))
+                return submission
+
+        raise Exception("Could not find submission for user")
 
 
 class Queries(Query, graphene.ObjectType):
