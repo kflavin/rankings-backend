@@ -6,9 +6,11 @@ class AuthMiddleware(object):
     
         print("your headers")
         print(environ.keys())
-        headers = environ['werkzeug.request'].headers
+
+        if 'werkzeug.request' in environ:
+            headers = environ['werkzeug.request'].headers
         
-        for header in headers.keys():
-            print("%s=%s" % (header, headers[header]))
+        # for header in headers.keys():
+            # print("%s=%s" % (header, headers[header]))
 
         return self.app(environ, start_response)
