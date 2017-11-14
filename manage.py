@@ -8,6 +8,8 @@ if __name__ == "__main__":
     init_db()
     app.run()
 else:
+    print("STARTING")
+    print(os.environ)
     if os.environ.get('WERKZEUG_RUN_MAIN') == "true":
         print("INIITALIZE DATABASE")
         init_db()
