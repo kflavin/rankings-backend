@@ -4,6 +4,8 @@ class AuthMiddleware(object):
     def __call__(self, environ, start_response):
         print("middleware accessed")
     
+        print("your headers")
+        print(environ.keys())
         headers = environ['werkzeug.request'].headers
         
         for header in headers.keys():
