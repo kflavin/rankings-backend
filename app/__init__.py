@@ -12,16 +12,12 @@ from app.schema.rankings import schema as exp_schema
 
 from app.authmiddleware import AuthMiddleware
 
-print("outside create app")
-
 def create_app(config_name):
     app = Flask(__name__)
     app.wsgi_app = AuthMiddleware(app.wsgi_app)
     CORS(app)
     bcrypt.init_app(app)
     app.debug = True
-
-    print("in create app")
 
     app.add_url_rule('/graphql',
                      view_func=GraphQLView.as_view(

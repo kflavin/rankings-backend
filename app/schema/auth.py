@@ -21,8 +21,10 @@ def get_user(context):
                 return user
         else:
             print("userid not found " + str(userid))
+            raise Exception("Not logged in")
     else:
         print("not found")
+        raise Exception("Not logged in")
     return None
 
 class User(SQLAlchemyObjectType):

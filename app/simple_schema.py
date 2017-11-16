@@ -89,8 +89,10 @@ class Query(graphene.AbstractType):
             if submission:
                 print("Submission is : " + str(submission))
                 return submission
-
-        raise Exception("Could not find submission for user")
+            else:
+                raise Exception("Could not find submission for user")
+        else:
+            raise Exception("User not logged in")
 
 
 class Queries(Query, graphene.ObjectType):

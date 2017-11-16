@@ -5,12 +5,14 @@ from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from app.models import (Submission as SubmissionModel, Week as WeekModel, User as UserModel, Ranking as RankingModel,
                     Team as TeamModel)
 from app.database import session
+from app.schema.auth import get_user
 
 
 def get_submission(user):
     # submission = SubmissionModel.query.filter(UserModel.name == user.name).first()
     current_week = WeekModel.query.order_by(WeekModel.date.desc()).first()
     submission = SubmissionModel.query.join(WeekModel).filter(WeekModel.id == current_week.id).join(UserModel).filter(UserModel.name == user.name).first()
+    print("Getting submission %s for user %s" %(str(submission), user.name))
     return submission
 
 class Submission(SQLAlchemyObjectType):
@@ -30,7 +32,8 @@ class CreateSubmission(graphene.Mutation):
     @staticmethod
     def mutate(cls, input, context, info):
         weekid = input.get('weekid')
-        userid = input.get('userid')
+        # userid = input.get('userid')
+        user = get_user(context)
         team_names = input.get('teams')
 
         print("Your teams are %s" % str(team_names))
@@ -48,7 +51,7 @@ class CreateSubmission(graphene.Mutation):
         # Week.query.filter(func.date(Week.date)==datetime.date(2017, 11, 8)).first()
 
         week = WeekModel.query.filter_by(id=weekid).first()
-        user = UserModel.query.filter_by(id=userid).first()
+        # user = UserModel.query.filter_by(id=userid).first()
 
         submission = SubmissionModel(week=week, user=user)
         session.add(submission)
