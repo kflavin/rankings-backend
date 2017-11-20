@@ -39,6 +39,48 @@ class Mutation(graphene.AbstractType):
     create_submission = CreateSubmission.Field()
 
 
+class Person(graphene.ObjectType):
+    name = graphene.String()
+    age = graphene.Int()
+    height = graphene.Int()
+
+    def resolve_name(self, args, context, info):
+        print("resolving name...")
+        return self.name
+
+    def resolve_age(self, args, context, info):
+        print("resolving age")
+        print(args)
+        return self.age
+
+    def resolve_height(self, args, context, info):
+        print("resolving height")
+        print("now your height is " + str(args.get('height')))
+        print(args)
+        return self.height
+
+class MyJson(graphene.ObjectType):
+    json = graphene.types.json.JSONString()
+    week = graphene.Int(default_value=1)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print("Initialize...")
+        print(args)
+        print(kwargs)
+
+    
+
+    def resolve_json(self, args, context, info):
+        print("resolve json")
+        print(args)
+        self.json = {
+            "1": ["Alabama"],
+            "3": ["Clemson"],
+            "5": ["Miami"]
+        }
+        return self.json
+
 class Query(graphene.AbstractType):
     teams = graphene.List(Team)
     weeks = graphene.List(Week, id=graphene.Int())
@@ -46,6 +88,35 @@ class Query(graphene.AbstractType):
     rankings = graphene.List(Ranking)
     current_week = graphene.Field(Week)
     my_submission = graphene.Field(Submission)
+    week_ranking = graphene.Field(WeeklyRanking, weekid=graphene.Int(default_value=1))
+
+    my_person = graphene.Field(Person, height=graphene.Argument(graphene.Int, default_value=71, description="height in inches!"),
+                                age=graphene.Int(default_value=23),
+                                name=graphene.String(default_value="Kyle"))
+
+    my_json = graphene.Field(MyJson)
+    def resolve_my_json(self, args, context, info):
+        import json
+        j = {
+            "1": ["Alabama"],
+            "2": ["Clemson"],
+            "3": ["Miami"]
+        }
+        return MyJson(week=1, json=j)
+
+    def resolve_my_person(self, args, context, info):
+        print("resolving person...")
+        print(args)
+        print("Your height is " + str(args.get('height')))
+        p= Person(name=args.get('name'), height=args.get('height'), age=args.get('age'))
+        print(p.name + " " + str(p.age) + " " + str(p.height))
+        return p
+
+
+    def resolve_week_ranking(self, args, context, info):
+        print("whaaa?")
+        j=WeekModel.week_rankings(args.get('weekid'))
+        return WeeklyRanking(rankings=j)
 
     def resolve_current_week(self, args, context, info):
         return WeekModel.query.order_by(WeekModel.date.desc()).first()

@@ -2,6 +2,8 @@ import datetime
 from calendar import timegm
 
 import jwt
+import operator
+from collections import defaultdict
 from sqlalchemy import *
 from sqlalchemy.orm import (relationship, backref)
 from flask import current_app
@@ -34,6 +36,73 @@ class Week(Base):
         session.add(w)
         session.commit()
         return w
+
+    @staticmethod
+    def current_week_rankings():
+        w = Week.query.order_by(Week.date.asc()).first()
+        return Week.week_rankings(w.id)
+
+    @staticmethod
+    def week_rankings(weekid):
+        """
+        Given a week id, calculate the overall ranking for that week
+
+        Return a dictionary of lists, with keys corresponding to ranks
+        """
+
+        w = Week.query.filter_by(id = weekid).first()
+        submissions = Submission.query.filter(Submission.week_id == w.id).all()
+
+        positions = len(submissions[0].rankings)
+        points = list(range(positions, 0, -1))
+        # print(points)
+
+        teams = defaultdict(lambda: 0)
+
+        for submission in submissions:
+            for ranking in submission.rankings:
+                # print("%s position %s, gets %s points" % (ranking.team.name,
+                #                                     ranking.position,
+                #                                     points[ranking.position-1]))
+                teams[ranking.team.name] += points[ranking.position-1]
+
+
+        # print(teams)
+
+        top_teams = sorted(teams.items(), key=operator.itemgetter(1), reverse=True)
+        # print(top_teams)
+
+        # for top_team in top_teams:
+            # print("%s: %s" % (top_team[0], top_team[1]))
+
+
+        rank = 1
+        rankings = {}
+        while rank < 11:
+            ranked_teams = []
+            pos = rank-1
+            s = "rank: %s" % (str(rank))
+            s += " %s" % top_teams[pos][0]
+            ranked_teams.append(top_teams[pos][0])
+            # print("rank %s and %s" % (str(rank), top_teams[pos][0]))
+
+            curr = 0
+            while top_teams[pos][1] == top_teams[pos+1][1]:
+                s += "\n\t %s" % top_teams[pos+1][0]
+                ranked_teams.append(top_teams[pos+1][0])
+                # print ("rank %s include %s " % (str(rank), top_teams[pos+1][0]))
+                pos += 1
+                curr += 1
+
+            rankings[rank] = ranked_teams
+            if pos >= rank:
+                # rank = ((pos + 1) - rank) + rank + 1
+                rank = pos + 2
+            else:
+                rank += 1
+
+            # print(s)
+        return rankings
 
     def __str__(self):
         return "<Week: {}>".format(self.date)

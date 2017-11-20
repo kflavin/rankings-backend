@@ -18,14 +18,12 @@ def get_submission(user):
 
 
 class WeeklyRanking(graphene.ObjectType):
-    teams = graphene.List(graphene.String)
+    rankings = graphene.types.json.JSONString()
+    # week = graphene.String()
+    # team = graphene.String()
 
-
-    def resolve_weekly_ranking(self, args, context, info):
-        print(args)
-        return ["one", "two", "three"]
-
-
+    def resolve_rankings(self, args, context, info):
+        return self.rankings
 
 
 class Submission(SQLAlchemyObjectType):

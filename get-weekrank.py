@@ -29,19 +29,35 @@ for top_team in top_teams:
 
 
 rank = 1
+rankings = {}
 while rank < 11:
+    ranked_teams = []
     pos = rank-1
     s = "rank: %s" % (str(rank))
     s += " %s" % top_teams[pos][0]
+    ranked_teams.append(top_teams[pos][0])
+    print("rank %s and %s" % (str(rank), top_teams[pos][0]))
 
+    curr = 0
     while top_teams[pos][1] == top_teams[pos+1][1]:
         s += "\n\t %s" % top_teams[pos+1][0]
+        ranked_teams.append(top_teams[pos+1][0])
+        print ("rank %s include %s " % (str(rank), top_teams[pos+1][0]))
         pos += 1
+        curr += 1
 
-    rank += 1
+    rankings[rank] = ranked_teams
+    if pos >= rank:
+        # rank = ((pos + 1) - rank) + rank + 1
+        rank = pos + 2
+    else:
+        rank += 1
+
     print(s)
 
 
+from pprint import pprint
+pprint(rankings)
 
 #counter=0
 #flag=False
