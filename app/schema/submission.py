@@ -15,6 +15,19 @@ def get_submission(user):
     print("Getting submission %s for user %s" %(str(submission), user.name))
     return submission
 
+
+
+class WeeklyRanking(graphene.ObjectType):
+    teams = graphene.List(graphene.String)
+
+
+    def resolve_weekly_ranking(self, args, context, info):
+        print(args)
+        return ["one", "two", "three"]
+
+
+
+
 class Submission(SQLAlchemyObjectType):
     class Meta:
         model = SubmissionModel

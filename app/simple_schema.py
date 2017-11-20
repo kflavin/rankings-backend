@@ -10,7 +10,7 @@ from app.models import Week as WeekModel
 from flask import request
 
 from app.schema.auth import User, CreateUser, LoginUser, get_user
-from app.schema.submission import Submission, CreateSubmission, get_submission
+from app.schema.submission import Submission, CreateSubmission, WeeklyRanking, get_submission
 
 
 class Team(SQLAlchemyObjectType):

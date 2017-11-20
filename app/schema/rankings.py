@@ -5,9 +5,6 @@ from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from app.models import Ranking as RankingModel
 
 
-
-
-
 class Ranking(SQLAlchemyObjectType):
     class Meta:
         model = RankingModel
@@ -16,6 +13,11 @@ class Ranking(SQLAlchemyObjectType):
 class RankingQuery(graphene.AbstractType):
     rankings = graphene.List(Ranking)
     rankingsById = graphene.Int(id=graphene.Int())
+    rankingsByWeek = graphene.List(Ranking, weekid=graphene.Int())
+
+
+    def resolve_rankingsByWeek(self, args, context, info):
+        return "hello, world %s" % args.get('weekid')
 
     def resolve_rankingsById(self, args, context, info):
         return "hello"
