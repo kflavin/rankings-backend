@@ -81,6 +81,7 @@ class MyJson(graphene.ObjectType):
         }
         return self.json
 
+
 class Query(graphene.AbstractType):
     teams = graphene.List(Team)
     weeks = graphene.List(Week, id=graphene.Int())
@@ -88,13 +89,14 @@ class Query(graphene.AbstractType):
     rankings = graphene.List(Ranking)
     current_week = graphene.Field(Week)
     my_submission = graphene.Field(Submission)
-    week_ranking = graphene.Field(WeeklyRanking, weekid=graphene.Int(default_value=1))
+    week_ranking = graphene.Field(WeeklyRanking, weekid=graphene.Int(default_value=0))
 
     my_person = graphene.Field(Person, height=graphene.Argument(graphene.Int, default_value=71, description="height in inches!"),
                                 age=graphene.Int(default_value=23),
                                 name=graphene.String(default_value="Kyle"))
 
     my_json = graphene.Field(MyJson)
+
     def resolve_my_json(self, args, context, info):
         import json
         j = {
@@ -112,10 +114,13 @@ class Query(graphene.AbstractType):
         print(p.name + " " + str(p.age) + " " + str(p.height))
         return p
 
-
     def resolve_week_ranking(self, args, context, info):
-        print("whaaa?")
-        j=WeekModel.week_rankings(args.get('weekid'))
+        weekid = args.get('weekid')
+        if weekid == 0:
+            j = WeekModel.current_week_rankings()
+        else:
+            j = WeekModel.week_rankings(weekid)
+
         return WeeklyRanking(rankings=j)
 
     def resolve_current_week(self, args, context, info):

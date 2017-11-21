@@ -16,7 +16,6 @@ def get_submission(user):
     return submission
 
 
-
 class WeeklyRanking(graphene.ObjectType):
     rankings = graphene.types.json.JSONString()
     # week = graphene.String()

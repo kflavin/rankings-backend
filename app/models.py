@@ -53,6 +53,9 @@ class Week(Base):
         w = Week.query.filter_by(id = weekid).first()
         submissions = Submission.query.filter(Submission.week_id == w.id).all()
 
+        if not submissions:
+            return []
+
         positions = len(submissions[0].rankings)
         points = list(range(positions, 0, -1))
         # print(points)
@@ -75,26 +78,30 @@ class Week(Base):
         # for top_team in top_teams:
             # print("%s: %s" % (top_team[0], top_team[1]))
 
-
         rank = 1
-        rankings = {}
+        rankings = []
+        print("top teams")
+        print(top_teams)
         while rank < 11:
-            ranked_teams = []
+            ranked_teams = [rank]
             pos = rank-1
-            s = "rank: %s" % (str(rank))
-            s += " %s" % top_teams[pos][0]
+            # s = "rank: %s" % (str(rank))
+            # s += " %s" % top_teams[pos][0]
             ranked_teams.append(top_teams[pos][0])
             # print("rank %s and %s" % (str(rank), top_teams[pos][0]))
+            rankings.append(ranked_teams)
 
             curr = 0
-            while top_teams[pos][1] == top_teams[pos+1][1]:
-                s += "\n\t %s" % top_teams[pos+1][0]
+
+            while not rank >= 10 and top_teams[pos][1] == top_teams[pos+1][1]:
+                ranked_teams = [""]
+                # s += "\n\t %s" % top_teams[pos+1][0]
                 ranked_teams.append(top_teams[pos+1][0])
                 # print ("rank %s include %s " % (str(rank), top_teams[pos+1][0]))
                 pos += 1
                 curr += 1
+                rankings.append(ranked_teams)
 
-            rankings[rank] = ranked_teams
             if pos >= rank:
                 # rank = ((pos + 1) - rank) + rank + 1
                 rank = pos + 2
@@ -102,6 +109,8 @@ class Week(Base):
                 rank += 1
 
             # print(s)
+        print("rankings...")
+        print(rankings)
         return rankings
 
     def __str__(self):
