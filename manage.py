@@ -16,6 +16,7 @@ def init():
 @app.before_first_request
 def before_first_request():
     init_db()
+    #pass
 
 if __name__ == "__main__":
     # init_db()
