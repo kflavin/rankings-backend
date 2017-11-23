@@ -44,11 +44,11 @@ def init_db():
     matt = User(name="Matt")
     brian = User(name="Brian")
 
-    kyle.set_password("blah")
-    frank.set_password("blah")
-    jeff.set_password("blah")
-    matt.set_password("blah")
-    brian.set_password("blah")
+    kyle.set_password("kyle")
+    frank.set_password("frank")
+    jeff.set_password("jeff")
+    matt.set_password("matt")
+    brian.set_password("brian")
 
     users = [kyle, frank, jeff, matt, brian]
 
