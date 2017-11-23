@@ -58,7 +58,7 @@ def init_db():
 
     submissions = []
     for num,saturday in enumerate(saturdays):
-        if num >= len(saturdays) - 3:
+        if num >= len(saturdays) - 1:
             break
 
         for user in users:
@@ -172,7 +172,7 @@ def gen_rankings(teams, submission, positions=10):
 
 def gen_saturdays():
     start = date(2017, 9, 2)
-    end = date(2017, 12, 9)
+    end = date(2017, 11, 25)
     delta = timedelta(days=7)
 
     saturdays = []
