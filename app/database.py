@@ -131,8 +131,13 @@ def init_db():
 
     # session.commit()
 
+    top_teams = Team.query.filter(Team.name.in_(['Alabama', 'Clemson', 'Miami (FL)', 'Oklahoma',
+                                                 'Wisconsin', 'Auburn', 'Georgia', 'Notre Dame',
+                                                 'Ohio State', 'Penn State', 'USC', 'TCU', 'Washington State',
+                                                 ])).all()
+
     for submission in submissions:
-        gen_rankings(teams, submission, positions)
+        gen_rankings(top_teams, submission, positions)
 
     # gen_rankings(teams, w1s1, positions)
     # gen_rankings(teams, w1s2, positions)
