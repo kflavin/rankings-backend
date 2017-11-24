@@ -94,7 +94,7 @@ class Week(Base):
             curr = 0
 
             while not rank >= 10 and top_teams[pos][1] == top_teams[pos+1][1]:
-                ranked_teams = [""]
+                ranked_teams = [rank]
                 # s += "\n\t %s" % top_teams[pos+1][0]
                 ranked_teams.append(top_teams[pos+1][0])
                 # print ("rank %s include %s " % (str(rank), top_teams[pos+1][0]))
