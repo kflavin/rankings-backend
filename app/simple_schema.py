@@ -161,12 +161,13 @@ class Query(graphene.AbstractType):
         if user:
             print("User is : " + str(user))
             submission = get_submission(user)
+            return submission
             
-            if submission:
-                print("Submission is : " + str(submission))
-                return submission
-            else:
-                raise Exception("Could not find submission for user")
+            # if submission:
+            #     print("Submission is : " + str(submission))
+            #     return submission
+            # else:
+            #     raise Exception("Could not find submission for user")
         else:
             raise Exception("User not logged in")
 
