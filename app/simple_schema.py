@@ -1,6 +1,7 @@
 import graphene
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
+from sqlalchemy import func
 
 from app.models import Ranking as RankingModel
 from app.models import Submission as SubmissionModel
@@ -12,6 +13,7 @@ from flask import request
 from app.schema.auth import User, CreateUser, LoginUser, get_user
 from app.schema.submission import Submission, CreateSubmission, WeeklyRanking, get_submission
 
+from app.database import session
 
 class Team(SQLAlchemyObjectType):
     class Meta:
@@ -84,12 +86,20 @@ class MyJson(graphene.ObjectType):
 
 class Query(graphene.AbstractType):
     teams = graphene.List(Team)
-    weeks = graphene.List(Week, id=graphene.Int())
+    weeks = graphene.List(Week, year=graphene.Int())
     submissions = graphene.List(Submission, id=graphene.Int())
     rankings = graphene.List(Ranking)
     current_week = graphene.Field(Week)
     my_submission = graphene.Field(Submission)
     week_ranking = graphene.Field(WeeklyRanking, weekid=graphene.Int(default_value=0))
+    all_years = graphene.List(graphene.Int)
+
+    def resolve_all_years(self, args, context, info):
+        wks = list(map(lambda w: w.date.year, WeekModel.query.group_by(func.extract('year', WeekModel.date)).all()))
+        wks.reverse()
+        return wks
+
+
 
     my_person = graphene.Field(Person, height=graphene.Argument(graphene.Int, default_value=71, description="height in inches!"),
                                 age=graphene.Int(default_value=23),
@@ -138,11 +148,14 @@ class Query(graphene.AbstractType):
         return TeamModel.query.all()
 
     def resolve_weeks(self, args, context, info):
-        id = args.get('id')
-        if id:
-            return WeekModel.query.filter_by(id=args.get('id')).all()
+        year = args.get('year')
+        print("year is " + str(year))
+        if year:
+            return WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
         else:
-            return WeekModel.query.all()
+            # return WeekModel.query.all()
+            year = session.query(func.max(WeekModel.date)).first()[0].year
+            return WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
 
     # @graphene.resolve_only_args
     # def resolve_submissions(self):
