@@ -27,14 +27,11 @@ def init_db(start, weeks=13, num_positions=10):
     # num_positions = 10
     positions = list(range(num_positions))
 
-    # Add week
-    saturdays = gen_saturdays(weeks=weeks, start=start)
-
-    # week1 = Week(date=date(2017, 9, 1))
-    # week2 = Week(date=date(2017, 10, 1))
-    # week3 = Week(date=date(2017, 11, 1))
-    # session.add_all([week1, week2, week3])
-
+    # Add weeks
+    saturdays_2015 = gen_saturdays(weeks=weeks, start="2015-8-31")    
+    saturdays_2016 = gen_saturdays(weeks=weeks, start="2016-9-1")    
+    saturdays_2017 = gen_saturdays(weeks=weeks, start=start)
+    
     # Week.new()
 
     # add users
@@ -51,46 +48,44 @@ def init_db(start, weeks=13, num_positions=10):
     brian.set_password("brian")
 
     users = [kyle, frank, jeff, matt, brian]
-
     session.add_all(users)
 
+    add_teams()
 
 
+    top_teams = Team.query.filter(Team.name.in_(['Alabama', 'Clemson', 'Miami (FL)', 'Oklahoma',
+                                                 'Wisconsin', 'Auburn', 'Georgia', 'Notre Dame',
+                                                 'Ohio State', 'Penn State', 'USC', 'TCU', 'Washington State',
+                                                 ])).all()
+
+    add_submissions(saturdays_2015, users, top_teams, positions)
+    add_submissions(saturdays_2016, users, top_teams, positions)
+    add_submissions(saturdays_2017, users, top_teams, positions, open=1)
+
+    # for submission in submissions:
+        # gen_rankings(top_teams, submission, positions)
+
+
+def add_submissions(saturdays, users, teams, positions, open=0):
+    # "open" is the number of weeks to leave available for testing (no rankings submitted for those weeks)
     submissions = []
     for num,saturday in enumerate(saturdays):
-        if num >= len(saturdays) - 1:
+        if num >= len(saturdays) - open:
             break
 
         for user in users:
             submissions.append(Submission(week=saturday, user=user))
 
     session.add_all(submissions)
+    session.commit()
+
+    for submission in submissions:
+        gen_rankings(teams, submission, positions)
+
+    # return submissions
 
 
-    # add w1 submissions
-    # w1s1 = Submission(week=week1, user=kyle)
-    # w1s2 = Submission(week=week1, user=frank)
-    # w1s3 = Submission(week=week1, user=jeff)
-    # w1s4 = Submission(week=week1, user=matt)
-    # w1s5 = Submission(week=week1, user=brian)
-    # w2s1 = Submission(week=week2, user=kyle)
-    # w2s2 = Submission(week=week2, user=frank)
-    # w2s3 = Submission(week=week2, user=jeff)
-    # w2s4 = Submission(week=week2, user=matt)
-    # w2s5 = Submission(week=week2, user=brian)
-    # w3s1 = Submission(week=week3, user=kyle)
-    # w3s2 = Submission(week=week3, user=frank)
-    # w3s3 = Submission(week=week3, user=jeff)
-    # w3s4 = Submission(week=week3, user=matt)
-    # w3s5 = Submission(week=week3, user=brian)
-    #
-    # session.add_all([w1s1, w1s2, w1s3, w1s4, w1s5,
-    #                  w2s1, w2s2, w2s3, w2s4, w2s5,
-    #                  w3s1, w3s2, w3s3, w3s4, w3s5])
-
-    # add teams
-    # session.add_all(list(map(lambda x: Team(name=x), list("abcdefg"))))
-
+def add_teams(file="app/teams.txt"):
     # add teams
     f = open("app/teams.txt", 'r')
     contents = f.read()
@@ -100,60 +95,7 @@ def init_db(start, weeks=13, num_positions=10):
         teams.append(Team(name=team))
 
     session.add_all(teams)
-
-
     session.commit()
-
-    # establish some rankings
-    teams = Team.query.all()
-    print("Your teams are %s" % teams)
-    # positions = list(range(1, len(teams)+1))
-
-    # shuffle(positions)
-    # for i in teams:
-    #     print("Adding %s to s1" % i)
-    #     r = Ranking(position=positions.pop(), submission=s1, team=i)
-    #     session.add(r)
-    #
-    # positions = list(range(1, len(teams)+1))
-    # shuffle(positions)
-    # for i in teams:
-    #     print("Adding %s to s2" % i)
-    #     r = Ranking(position=positions.pop(), submission=s2, team=i)
-    #     session.add(r)
-    #
-    # positions = list(range(1, len(teams)+1))
-    # shuffle(positions)
-    # for i in teams:
-    #     print("Adding %s to s3" % i)
-    #     r = Ranking(position=positions.pop(), submission=s3, team=i)
-    #     session.add(r)
-
-    # session.commit()
-
-    top_teams = Team.query.filter(Team.name.in_(['Alabama', 'Clemson', 'Miami (FL)', 'Oklahoma',
-                                                 'Wisconsin', 'Auburn', 'Georgia', 'Notre Dame',
-                                                 'Ohio State', 'Penn State', 'USC', 'TCU', 'Washington State',
-                                                 ])).all()
-
-    for submission in submissions:
-        gen_rankings(top_teams, submission, positions)
-
-    # gen_rankings(teams, w1s1, positions)
-    # gen_rankings(teams, w1s2, positions)
-    # gen_rankings(teams, w1s3, positions)
-    # gen_rankings(teams, w1s4, positions)
-    # gen_rankings(teams, w1s5, positions)
-    # gen_rankings(teams, w2s1, positions)
-    # gen_rankings(teams, w2s2, positions)
-    # gen_rankings(teams, w2s3, positions)
-    # gen_rankings(teams, w2s4, positions)
-    # gen_rankings(teams, w2s5, positions)
-    # gen_rankings(teams, w3s1, positions)
-    # gen_rankings(teams, w3s2, positions)
-    # gen_rankings(teams, w3s3, positions)
-    # gen_rankings(teams, w3s4, positions)
-    # gen_rankings(teams, w3s5, positions)
 
 
 def gen_rankings(teams, submission, positions=10):
@@ -187,8 +129,8 @@ def gen_saturdays(start="2017-9-2", weeks=13):
         curr += delta
 
     weeks = []
-    for saturday in saturdays:
-        weeks.append(Week(date=saturday))
+    for num,saturday in enumerate(saturdays):
+        weeks.append(Week(date=saturday, num=num+1))
 
     session.add_all(weeks)
     session.commit()

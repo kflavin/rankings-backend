@@ -29,6 +29,7 @@ class Week(Base):
     __tablename__ = 'week'
     id = Column(Integer, primary_key=True)
     date = Column(Date, default=func.now())
+    num = Column(Integer)
 
     @staticmethod
     def new():
@@ -114,10 +115,10 @@ class Week(Base):
         return rankings
 
     def __str__(self):
-        return "<Week: {}>".format(self.date)
+        return "<Week: {} {}>".format(self.num, self.date)
 
     def __repr__(self):
-        return "<Week: {}>".format(self.date)
+        return "<Week: {} {}>".format(self.num, self.date)
 
 
 class Submission(Base):

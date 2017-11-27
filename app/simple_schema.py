@@ -7,6 +7,7 @@ from app.models import Ranking as RankingModel
 from app.models import Submission as SubmissionModel
 from app.models import Team as TeamModel
 from app.models import Week as WeekModel
+from app.models import User as UserModel
 
 from flask import request
 
@@ -86,8 +87,8 @@ class MyJson(graphene.ObjectType):
 
 class Query(graphene.AbstractType):
     teams = graphene.List(Team)
-    weeks = graphene.List(Week, year=graphene.Int())
-    submissions = graphene.List(Submission, id=graphene.Int())
+    weeks = graphene.List(Week, year=graphene.Int(), num=graphene.Int(default_value=0), id=graphene.Int(default_value=0))
+    submissions = graphene.List(Submission, id=graphene.Int(), year=graphene.Int(), num=graphene.Int(), user=graphene.String())
     rankings = graphene.List(Ranking)
     current_week = graphene.Field(Week)
     my_submission = graphene.Field(Submission)
@@ -137,11 +138,21 @@ class Query(graphene.AbstractType):
         return WeekModel.query.order_by(WeekModel.date.desc()).first()
 
     def resolve_submissions(self, args, context, info):
+        num = args.get('num')
+        year = args.get('year')
+        user = args.get('user')
         id = args.get('id')
+
         if id:
             return SubmissionModel.query.filter_by(id=args.get('id')).all()
         else:
-            return SubmissionModel.query.all()
+            # return SubmissionModel.query.all()
+            user_id = UserModel.query.filter(UserModel.name.ilike(user)).first().id
+
+            return SubmissionModel.query.join(WeekModel).\
+                filter(func.extract('year', WeekModel.date) == year).\
+                filter(WeekModel.num==1).join(UserModel).\
+                filter(UserModel.id == user_id).all()
 
     @graphene.resolve_only_args
     def resolve_teams(self):
@@ -149,11 +160,14 @@ class Query(graphene.AbstractType):
 
     def resolve_weeks(self, args, context, info):
         year = args.get('year')
-        print("year is " + str(year))
-        if year:
+        num = args.get('num')
+
+        if year and num:
+            # return WeekModel.query.filter(WeekModel.num == num).all()
+            return WeekModel.query.filter(WeekModel.num == 1).filter(func.extract('year', WeekModel.date) == year).all()
+        if year and not num:
             return WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
         else:
-            # return WeekModel.query.all()
             year = session.query(func.max(WeekModel.date)).first()[0].year
             return WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
 
