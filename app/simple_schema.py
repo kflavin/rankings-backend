@@ -151,7 +151,7 @@ class Query(graphene.AbstractType):
 
             return SubmissionModel.query.join(WeekModel).\
                 filter(func.extract('year', WeekModel.date) == year).\
-                filter(WeekModel.num==1).join(UserModel).\
+                filter(WeekModel.num==num).join(UserModel).\
                 filter(UserModel.id == user_id).all()
 
     @graphene.resolve_only_args
@@ -164,7 +164,7 @@ class Query(graphene.AbstractType):
 
         if year and num:
             # return WeekModel.query.filter(WeekModel.num == num).all()
-            return WeekModel.query.filter(WeekModel.num == 1).filter(func.extract('year', WeekModel.date) == year).all()
+            return WeekModel.query.filter(WeekModel.num == num).filter(func.extract('year', WeekModel.date) == year).all()
         if year and not num:
             return WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
         else:
