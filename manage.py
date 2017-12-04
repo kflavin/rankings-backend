@@ -21,10 +21,10 @@ def start_season(date):
 
 
 
-@app.before_first_request
-def before_first_request():
-    init_db(start="2017-9-2")
-    pass
+# @app.before_first_request
+# def before_first_request():
+#     init_db(start="2017-9-2")
+#     pass
 
 if __name__ == "__main__":
     # init_db()
