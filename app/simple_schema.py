@@ -92,7 +92,7 @@ class Query(graphene.AbstractType):
     rankings = graphene.List(Ranking)
     current_week = graphene.Field(Week)
     my_submission = graphene.Field(Submission)
-    week_ranking = graphene.Field(WeeklyRanking, weekid=graphene.Int(default_value=0))
+    week_ranking = graphene.Field(WeeklyRanking, weeknum=graphene.Int(), year=graphene.Int())
     all_years = graphene.List(graphene.Int)
 
     def resolve_all_years(self, args, context, info):
@@ -126,11 +126,12 @@ class Query(graphene.AbstractType):
         return p
 
     def resolve_week_ranking(self, args, context, info):
-        weekid = args.get('weekid')
-        if weekid == 0:
+        num = args.get('weeknum')
+        year = args.get('year')
+        if not num:
             j = WeekModel.current_week_rankings()
         else:
-            j = WeekModel.week_rankings(weekid)
+            j = WeekModel.week_rankings(num, year)
 
         return WeeklyRanking(rankings=j)
 

@@ -6,10 +6,17 @@ from app.database import session
 
 def get_user(context):
     header = context.headers.get('Authorization')
+    print("header is")
+    print(header)
 
     print("header is: " + header)
     if header:
-        token = header.split(" ")[1]
+
+        tokenized_header = header.split(" ")
+        if len(tokenized_header) < 2:
+            raise Exception("Auth token is either invalid or not present")
+        _,token = tokenized_header
+
         print("token is " + token)
 
         userid = UserModel.decode_auth_token(token)

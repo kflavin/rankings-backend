@@ -4,7 +4,7 @@ from calendar import timegm
 import jwt
 import operator
 from collections import defaultdict
-from sqlalchemy import *
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean, func
 from sqlalchemy.orm import (relationship, backref)
 from flask import current_app
 
@@ -40,18 +40,21 @@ class Week(Base):
 
     @staticmethod
     def current_week_rankings():
-        w = Week.query.order_by(Week.date.asc()).first()
-        return Week.week_rankings(w.id)
+        w = Week.query.order_by(Week.date.desc()).first()
+        return Week.week_rankings(w.num, w.date.year)
 
     @staticmethod
-    def week_rankings(weekid):
+    def week_rankings(weeknum, year):
         """
-        Given a week id, calculate the overall ranking for that week
+        Given a weeknum and year, calculate the overall ranking for that week
 
         Return a dictionary of lists, with keys corresponding to ranks
         """
 
-        w = Week.query.filter_by(id = weekid).first()
+        # w = Week.query.filter_by(num = weeknum).first()
+        print("Filter by weeknum: " + str(weeknum) + " year: " + str(year))
+        w = Week.query.filter(Week.num == weeknum).filter(func.extract('year', Week.date) == year).first()
+        print("Week num: " + str(w))
         submissions = Submission.query.filter(Submission.week_id == w.id).all()
 
         if not submissions:
@@ -94,7 +97,7 @@ class Week(Base):
 
             curr = 0
 
-            while not rank >= 10 and top_teams[pos][1] == top_teams[pos+1][1]:
+            while not rank >= 10 and not pos >= 9 and top_teams[pos][1] == top_teams[pos+1][1]:
                 ranked_teams = [rank]
                 # s += "\n\t %s" % top_teams[pos+1][0]
                 ranked_teams.append(top_teams[pos+1][0])
