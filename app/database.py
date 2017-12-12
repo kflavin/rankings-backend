@@ -17,7 +17,8 @@ Base.query = session.query_property()
 
 from app.models import Week, User, Team, Submission, Ranking
 
-def init_db(start, weeks=13, num_positions=10):
+# def init_db(start, weeks=13, num_positions=10):
+def init_db(weeks=13, num_positions=10):
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
@@ -30,7 +31,7 @@ def init_db(start, weeks=13, num_positions=10):
     # Add weeks
     saturdays_2015 = gen_saturdays(weeks=weeks, start="2015-8-31")    
     saturdays_2016 = gen_saturdays(weeks=weeks, start="2016-9-1")    
-    saturdays_2017 = gen_saturdays(weeks=weeks, start=start)
+    # saturdays_2017 = gen_saturdays(weeks=weeks, start=start)
     
     # Week.new()
 
@@ -60,7 +61,7 @@ def init_db(start, weeks=13, num_positions=10):
 
     add_submissions(saturdays_2015, users, top_teams, positions)
     add_submissions(saturdays_2016, users, top_teams, positions)
-    add_submissions(saturdays_2017, users, top_teams, positions, open=1)
+    # add_submissions(saturdays_2017, users, top_teams, positions, open=1)
 
     # for submission in submissions:
         # gen_rankings(top_teams, submission, positions)

@@ -1,4 +1,6 @@
 import graphene
+import datetime
+from datetime import date, timedelta
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from sqlalchemy import func
@@ -16,6 +18,8 @@ from app.schema.submission import Submission, CreateSubmission, WeeklyRanking, g
 
 from app.database import session
 
+from app.utils import isActive
+
 class Team(SQLAlchemyObjectType):
     class Meta:
         model = TeamModel
@@ -24,6 +28,12 @@ class Team(SQLAlchemyObjectType):
 class Week(SQLAlchemyObjectType):
     class Meta:
         model = WeekModel
+
+    active = graphene.Boolean()
+
+    def resolve_active(self, args, context, info):
+        print("resolving active...")
+        return self.active
 
 
 # class Submission(SQLAlchemyObjectType):
@@ -136,7 +146,8 @@ class Query(graphene.AbstractType):
         return WeeklyRanking(rankings=j)
 
     def resolve_current_week(self, args, context, info):
-        return WeekModel.query.order_by(WeekModel.date.desc()).first()
+        # return WeekModel.query.order_by(WeekModel.date.desc()).first()
+        return WeekModel.current_week()
 
     def resolve_submissions(self, args, context, info):
         num = args.get('num')
@@ -166,11 +177,19 @@ class Query(graphene.AbstractType):
         if year and num:
             # return WeekModel.query.filter(WeekModel.num == num).all()
             return WeekModel.query.filter(WeekModel.num == num).filter(func.extract('year', WeekModel.date) == year).all()
-        if year and not num:
-            return WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
+        # if year and not num:
+        #     allWeeks = WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
+        #     return addActive(allWeeks)
         else:
-            year = session.query(func.max(WeekModel.date)).first()[0].year
-            return WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
+            year = year if year else session.query(func.max(WeekModel.date)).first()[0].year
+            # year = session.query(func.max(WeekModel.date)).first()[0].year
+            allWeeks =  WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
+            for week in allWeeks:
+                print("%s %s" % (week.date, week.active))
+                if isActive(week.date):
+                    print("setting to true")
+                    week.active = True
+            return allWeeks
 
     # @graphene.resolve_only_args
     # def resolve_submissions(self):

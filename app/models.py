@@ -12,6 +12,8 @@ from app import bcrypt
 from app.database import Base
 from app.database import session
 
+from app.utils import isActive
+
 
 class Team(Base):
     __tablename__ = 'team'
@@ -31,12 +33,24 @@ class Week(Base):
     date = Column(Date, default=func.now())
     num = Column(Integer)
 
+    # Not a db field, used to dynamically return if date is in active window
+    active = False  # if this is the active week
+    current = True  # 
+
     @staticmethod
     def new():
         w = Week()
         session.add(w)
         session.commit()
         return w
+
+    @staticmethod
+    def current_week():
+        year = Week.query.order_by(Week.date.desc()).first().date.year
+        weeks = Week.query.filter(func.extract('year', Week.date) == year).all()
+        for week in weeks:
+            if isActive(week.date):
+                return week
 
     @staticmethod
     def current_week_rankings():
