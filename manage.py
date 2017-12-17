@@ -1,5 +1,7 @@
 import os
 from flask import g
+from app.models import Week, Ranking, Submission, User, Team
+
 from app import create_app, db
 from app.database import init_db, gen_saturdays, gen_data
 
@@ -12,6 +14,11 @@ app = create_app(os.environ.get("FLASK_CONFIG") or "default")
 from flask_script import Manager, Shell
 
 manager = Manager(app)
+
+# configure shell and migration commands
+def make_shell_context():
+    return dict(app=app, db=db, Week=Week, Ranking=Ranking, Submission=Submission, User=User, Team=Team)
+manager.add_command("shell", Shell(make_context=make_shell_context))
 
 @manager.command
 def init():

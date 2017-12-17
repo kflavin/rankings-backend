@@ -3,7 +3,7 @@ import datetime
 from datetime import date, timedelta
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
-from sqlalchemy import func
+from sqlalchemy import func, desc
 
 from app.models import Ranking as RankingModel
 from app.models import Submission as SubmissionModel
@@ -107,10 +107,17 @@ class Query(graphene.AbstractType):
     all_years = graphene.List(graphene.Int)
 
     def resolve_all_years(self, args, context, info):
-        wks = list(map(lambda w: w.date.year, WeekModel.query.group_by(func.extract('year', WeekModel.date)).all()))
-        wks.reverse()
+        print("getting all years")
+        # wks = list(map(lambda w: w.date.year, WeekModel.query.group_by(func.extract('year', WeekModel.date)).all()))
+        # db.session.query(func.extract('year', Week.date).label('h')).group_by('h').all()
+        # wks.reverse()
+        # Week.query.order_by(desc(func.extract('year', Week.date))).first().date.year
+        # seem to need this form for postgres.  func.extract isn't working inside of a group_by
+        wks = [ 
+            i.date.year 
+            for i in WeekModel.query.distinct(func.extract('year', WeekModel.date)).order_by(desc(func.extract('year', WeekModel.date))).all() 
+            ]
         return wks
-
 
 
     my_person = graphene.Field(Person, height=graphene.Argument(graphene.Int, default_value=71, description="height in inches!"),
@@ -206,6 +213,7 @@ class Query(graphene.AbstractType):
     # def resolve_my_submission(self, args, context, info):
     def resolve_my_submission(self, args, context, info):
         user = get_user(context)
+        print("Looking for submissions from user %s" % user)
         if user:
             print("User is : " + str(user))
             submission = get_submission(user)

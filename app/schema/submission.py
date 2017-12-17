@@ -11,7 +11,9 @@ session = db.session
 
 def get_submission(user):
     # submission = SubmissionModel.query.filter(UserModel.name == user.name).first()
-    current_week = WeekModel.query.order_by(WeekModel.date.desc()).first()
+    # current_week = WeekModel.query.order_by(WeekModel.date.desc()).first()
+    # print("current week is " + str(WeekModel.current_week().num))
+    current_week = WeekModel.current_week()
     submission = SubmissionModel.query.join(WeekModel).filter(WeekModel.id == current_week.id).join(UserModel).filter(UserModel.name == user.name).first()
     print("Getting submission %s for user %s" %(str(submission), user.name))
     return submission
