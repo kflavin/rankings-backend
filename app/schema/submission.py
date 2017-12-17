@@ -4,9 +4,10 @@ from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from app.models import (Submission as SubmissionModel, Week as WeekModel, User as UserModel, Ranking as RankingModel,
                     Team as TeamModel)
-from app.database import session
+from app import db
 from app.schema.auth import get_user
 
+session = db.session
 
 def get_submission(user):
     # submission = SubmissionModel.query.filter(UserModel.name == user.name).first()

@@ -1,6 +1,7 @@
 Flask-Bcrypt==0.7.1
 Flask-Cors==3.0.3
 Flask-GraphQL==1.4.1
+Flask-SQLAlchemy==2.3.2
 Flask-Script==2.0.6
 Flask==0.12.2
 PyJWT==1.5.3
@@ -10,3 +11,4 @@ graphene-sqlalchemy==1.1.1
 graphene==1.4.1
 graphql-core==1.1
 gunicorn==19.7.1
+psycopg2==2.7.3.2

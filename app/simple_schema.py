@@ -16,7 +16,8 @@ from flask import request
 from app.schema.auth import User, CreateUser, LoginUser, get_user
 from app.schema.submission import Submission, CreateSubmission, WeeklyRanking, get_submission
 
-from app.database import session
+from app import db
+session = db.session
 
 from app.utils import isActive
 

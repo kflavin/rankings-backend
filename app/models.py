@@ -8,14 +8,13 @@ from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean, func
 from sqlalchemy.orm import (relationship, backref)
 from flask import current_app
 
-from app import bcrypt
-from app.database import Base
-from app.database import session
+from app import bcrypt, db
 
 from app.utils import isActive
 
+session = db.session
 
-class Team(Base):
+class Team(db.Model):
     __tablename__ = 'team'
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -27,7 +26,7 @@ class Team(Base):
         return "<Team: {}>".format(self.name)
 
 
-class Week(Base):
+class Week(db.Model):
     __tablename__ = 'week'
     id = Column(Integer, primary_key=True)
     date = Column(Date, default=func.now())
@@ -138,7 +137,7 @@ class Week(Base):
         return "<Week: {} {}>".format(self.num, self.date)
 
 
-class Submission(Base):
+class Submission(db.Model):
     __tablename__ = 'submission'
     id = Column(Integer, primary_key=True)
 
@@ -164,7 +163,7 @@ class Submission(Base):
         return "<Submission: {} {} {}>".format(self.id, self.user, self.week)
 
 
-class Ranking(Base):
+class Ranking(db.Model):
     __tablename__ = 'ranking'
     id = Column(Integer, primary_key=True)
     position = Column(Integer)
@@ -184,7 +183,7 @@ class Ranking(Base):
                                                self.team, self.submission)
 
 
-class User(Base):
+class User(db.Model):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     name = Column(String)

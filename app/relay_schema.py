@@ -7,9 +7,11 @@ from app.models import Ranking as RankingModel
 from app.models import Submission as SubmissionModel
 from app.models import Team as TeamModel
 from app.models import Week as WeekModel
-from app.database import session
+from app import db
 
 from app.schema.auth import User, CreateUser, LoginUser
+
+session = db.session
 
 # class User(SQLAlchemyObjectType):
 #     class Meta:

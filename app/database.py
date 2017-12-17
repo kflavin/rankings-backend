@@ -5,23 +5,50 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-engine = create_engine('sqlite:///database.sqlite3', convert_unicode=True)
-db_session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=engine))
+from app import db
+session = db.session
 
-session=db_session
 
-Base = declarative_base()
-Base.query = session.query_property()
+# Base = declarative_base()
 
-from app.models import Week, User, Team, Submission, Ranking
+# class Database(object):
+#     def __init__(self):
+#         self.Base = ""
+#         self.engine = ""
+#         self.session = ""
 
-# def init_db(start, weeks=13, num_positions=10):
-def init_db(weeks=13, num_positions=10):
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+#     def connect(self, connection_string):
+#         self.Base = declarative_base()
+#         self.engine = create_engine(connection_string, convert_unicode=True)
+#         self.session = scoped_session(sessionmaker(autocommit=False,
+#                                             autoflush=False,
+#                                             bind=self.engine))
+#         self.Base.query = self.session.query_property()
 
+#     def __str__(self):
+#         return  "Base=%s engine=%s session=%s" % (self.Base, self.engine, self.session)
+
+# from app.models import Week, User, Team, Submission, Ranking
+# from flask import current_app, g
+
+# def create_session():
+#     engine = create_engine(current_app.config['DATABASE_URL'], convert_unicode=True)
+#     session = scoped_session(sessionmaker(autocommit=False,
+#                                             autoflush=False,
+#                                             bind=engine))
+#     return (session, engine)
+
+def init_db():
+    # session, engine = create_session()
+    # import pdb; pdb.set_trace()
+    # Base.query = session.query_property()
+    # print("Initializing database")
+    db.metadata.drop_all(bind=db.engine)
+    db.metadata.create_all(bind=db.engine)
+
+from app.models import User, Team, Week, Submission, Ranking
+
+def gen_data(weeks=13, num_positions=10):
     # create fixtures
 
     # Top 10, Top 25, etc

@@ -2,7 +2,8 @@ import graphene
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from app.models import User as UserModel
-from app.database import session
+from app import db
+session = db.session
 
 def get_user(context):
     header = context.headers.get('Authorization')
