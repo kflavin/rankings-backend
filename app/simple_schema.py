@@ -19,7 +19,7 @@ from app.schema.submission import Submission, CreateSubmission, WeeklyRanking, g
 from app import db
 session = db.session
 
-from app.utils import isActive
+# from app.utils import isActive
 
 class Team(SQLAlchemyObjectType):
     class Meta:
@@ -31,10 +31,15 @@ class Week(SQLAlchemyObjectType):
         model = WeekModel
 
     active = graphene.Boolean()
+    last = graphene.Boolean()
 
     def resolve_active(self, args, context, info):
         print("resolving active...")
         return self.active
+
+    def resolve_last(self, args, context, info):
+        print("resolving last...")
+        return self.last
 
 
 # class Submission(SQLAlchemyObjectType):
@@ -194,9 +199,12 @@ class Query(graphene.AbstractType):
             allWeeks =  WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
             for week in allWeeks:
                 print("%s %s" % (week.date, week.active))
-                if isActive(week.date):
+                if week.isActive():
                     print("setting to true")
                     week.active = True
+                if week.isLast():
+                    print("last is true")
+                    week.last = True
             return allWeeks
 
     # @graphene.resolve_only_args

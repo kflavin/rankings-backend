@@ -1,4 +1,5 @@
 import datetime
+from datetime import date, timedelta
 from calendar import timegm
 
 import jwt
@@ -10,7 +11,7 @@ from flask import current_app
 
 from app import bcrypt, db
 
-from app.utils import isActive
+# from app.utils import isActive
 
 session = db.session
 
@@ -34,7 +35,9 @@ class Week(db.Model):
 
     # Not a db field, used to dynamically return if date is in active window
     active = False  # if this is the active week
-    current = True  # 
+    last = False  # last week's rankings
+
+    active_period = 3  # days
 
     @staticmethod
     def new():
@@ -43,12 +46,42 @@ class Week(db.Model):
         session.commit()
         return w
 
+    # Is this the current week?
+    def isLast(self):
+        print("test if last")
+        current_year = Week.query.order_by(Week.date.desc()).limit(1).first().date.year
+        w = Week.query.filter(func.extract('year', Week.date) == self.date.year).order_by(Week.date).all()[-1]
+        if w.date.year < current_year:
+            return False
+
+        if date.today() > w.date:
+            print("season is over")
+            if self == w:
+                return True
+            else:
+                return False
+        else:
+            print("season is not over")
+            if date.today() > self.date and date.today() < self.date + timedelta(7):
+                print("this is the current week")
+                return True
+            else:
+                print("this is not the current week")
+                return False
+
+    # Is this week active?
+    def isActive(self):
+        if date.today() > self.date and date.today() <= self.date + timedelta(self.active_period):
+            return True
+        else:
+            return False
+
     @staticmethod
     def current_week():
         year = Week.query.order_by(Week.date.desc()).first().date.year
         weeks = Week.query.filter(func.extract('year', Week.date) == year).all()
         for week in weeks:
-            if isActive(week.date):
+            if week.isActive():
                 return week
 
     @staticmethod
