@@ -150,6 +150,8 @@ def gen_saturdays(start="2017-9-2", weeks=13):
     start = date(*args)
     delta = timedelta(days=7)
 
+    weeks = int(weeks)
+
     curr = start
     saturdays = []
     for i in range(weeks+1):
