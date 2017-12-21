@@ -3,7 +3,7 @@ import datetime
 from datetime import date, timedelta
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, and_, or_
 
 from app.models import Ranking as RankingModel
 from app.models import Submission as SubmissionModel
@@ -120,7 +120,9 @@ class Query(graphene.AbstractType):
         # seem to need this form for postgres.  func.extract isn't working inside of a group_by
         wks = [ 
             i.date.year 
-            for i in WeekModel.query.distinct(func.extract('year', WeekModel.date)).order_by(desc(func.extract('year', WeekModel.date))).all() 
+            # Exclude January months, as they count towards previous year
+            # for i in WeekModel.query.distinct(func.extract('year', WeekModel.date)).order_by(desc(func.extract('year', WeekModel.date))).all() 
+            for i in WeekModel.query.filter(func.extract('month', WeekModel.date) != 1).distinct(func.extract('year', WeekModel.date)).order_by(desc(func.extract('year', WeekModel.date))).all() 
             ]
         return wks
 
@@ -194,9 +196,14 @@ class Query(graphene.AbstractType):
         #     allWeeks = WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
         #     return addActive(allWeeks)
         else:
-            year = year if year else session.query(func.max(WeekModel.date)).first()[0].year
-            # year = session.query(func.max(WeekModel.date)).first()[0].year
-            allWeeks =  WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
+            # Replace this query with the one below, to exclude January.
+            # year = year if year else session.query(func.max(WeekModel.date)).first()[0].year
+            year = year if year else session.query(func.max(WeekModel.date)).filter(func.extract('month', WeekModel.date) != 1).first()[0].year
+
+            # Use a query for allWeeks that also returns the following January
+            # allWeeks =  WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
+            allWeeks = WeekModel.query.filter(or_(func.extract('year', WeekModel.date) == year, \
+                    and_(func.extract('year', WeekModel.date) == year+1, func.extract('month', WeekModel.date) == 1))).all()
             for week in allWeeks:
                 print("%s %s" % (week.date, week.active))
                 if week.isActive():

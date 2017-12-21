@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from random import shuffle
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -145,12 +145,17 @@ def gen_rankings(teams, submission, positions=10):
     session.commit()
 
 
-def gen_saturdays(start="2017-9-2", weeks=13):
+def gen_saturdays(start="2017-9-2", weeks=13, include_january=False):
+    """
+    include_january: date of last game
+    """
     args = list(map(lambda x: int(x), start.split("-")))
     start = date(*args)
     delta = timedelta(days=7)
 
     weeks = int(weeks)
+
+
 
     curr = start
     saturdays = []
@@ -162,7 +167,25 @@ def gen_saturdays(start="2017-9-2", weeks=13):
     for num,saturday in enumerate(saturdays):
         weeks.append(Week(date=saturday, num=num+1))
 
+    if include_january:
+        weeks.append(Week(date=include_january, num=num+1))
+
     session.add_all(weeks)
     session.commit()
 
     return weeks
+
+def gen_week(d=date.today()):
+    year = d.year
+    if d.month == 1:
+        year = year - 1
+
+    w = Week.query.filter(func.extract('year', Week.date) == year).order_by(Week.date.desc()).first()
+    new_week = Week(date=d, num=w.num+1)
+
+    if bool(Week.query.filter(Week.date == new_week.date).first()):
+        return None
+
+    session.add(new_week)
+    session.commit()
+    return new_week

@@ -37,7 +37,7 @@ class Week(db.Model):
     active = False  # if this is the active week
     last = False  # last week's rankings
 
-    active_period = 3  # days
+    active_period = timedelta(days=5, hours=2)
 
     @staticmethod
     def new():
@@ -71,7 +71,7 @@ class Week(db.Model):
 
     # Is this week active?
     def isActive(self):
-        if date.today() > self.date and date.today() <= self.date + timedelta(self.active_period):
+        if date.today() > self.date and date.today() <= self.date + self.active_period:
             return True
         else:
             return False

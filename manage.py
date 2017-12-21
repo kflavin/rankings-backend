@@ -1,9 +1,10 @@
 import os
+from datetime import date
 from flask import g
 from app.models import Week, Ranking, Submission, User, Team
 
 from app import create_app, db
-from app.database import init_db, gen_saturdays, gen_data
+from app.database import init_db, gen_saturdays, gen_data, gen_week
 
 app = create_app(os.environ.get("FLASK_CONFIG") or "default")
 # with app.app_context():
@@ -25,10 +26,16 @@ def init():
     init_db()
 
 @manager.command
-def init_all(start="2017-12-1", weeks=4):
+def init_all(start="2017-12-1", weeks=4, include_january=False):
     init_db()
     gen_data()
-    gen_saturdays(start=start, weeks=weeks)
+    gen_saturdays(start=start, weeks=weeks, include_january=include_january)
+
+@manager.option('-d', '--date', dest='d', default=str(date.today()))
+def add_week(d):
+    d_date = date(*map(int, d.split("-")))
+    if not gen_week(d_date):
+        print("Week with that date already exists.")
 
 
 # Pass in date="YYYY-M-D"
