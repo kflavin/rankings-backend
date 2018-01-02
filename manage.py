@@ -17,8 +17,9 @@ from flask_script import Manager, Shell
 manager = Manager(app)
 
 # configure shell and migration commands
+from sqlalchemy import func, and_, or_
 def make_shell_context():
-    return dict(app=app, db=db, Week=Week, Ranking=Ranking, Submission=Submission, User=User, Team=Team)
+    return dict(app=app, db=db, Week=Week, Ranking=Ranking, Submission=Submission, User=User, Team=Team, func=func, and_=and_, or_=or_)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 
 @manager.command
