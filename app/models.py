@@ -5,7 +5,7 @@ from calendar import timegm
 import jwt
 import operator
 from collections import defaultdict
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean, func
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean, func, and_, or_
 from sqlalchemy.orm import (relationship, backref)
 from flask import current_app
 
@@ -46,15 +46,31 @@ class Week(db.Model):
         session.commit()
         return w
 
-    # Is this the current week?
-    def isLast(self):
-        print("test if last")
-        current_year = Week.query.order_by(Week.date.desc()).limit(1).first().date.year
-        w = Week.query.filter(func.extract('year', Week.date) == self.date.year).order_by(Week.date).all()[-1]
-        if w.date.year < current_year:
-            return False
+    # Weeks this year in descending order (last week first)
+    @staticmethod
+    def weeksThisYear(year):
+        return Week.query.filter(or_(\
+                func.extract('year', Week.date) == year, \
+                and_(func.extract('year', Week.date) == year+1, \
+                     func.extract('month', Week.date) == 1))).order_by(Week.date.desc()).all()
 
-        if date.today() > w.date:
+    # Last game of the season (bowl games)
+    @staticmethod
+    def lastWeekThisYear(year):
+        return Week.weeksThisYear(year)[0]
+
+    # last = most recent week of complete rankings
+    def isLast(self):
+        current_year = Week.query.order_by(Week.date.desc()).limit(1).first().date.year
+        # w = Week.query.filter(func.extract('year', Week.date) == self.date.year).order_by(Week.date).all()[-1]
+        # Last week of the season
+        w = Week.lastWeekThisYear(self.date.year)
+        
+        # if w.date.year < current_year:
+        #     return False
+
+        # three days to submit final rankings
+        if date.today() > w.date + timedelta(3):
             print("season is over")
             if self == w:
                 return True
@@ -62,24 +78,26 @@ class Week(db.Model):
                 return False
         else:
             print("season is not over")
-            if date.today() > self.date and date.today() < self.date + timedelta(7):
+            if date.today() > self.date and (date.today() <= self.date + timedelta(7)):
                 print("this is the current week")
                 return True
             else:
-                print("this is not the current week")
                 return False
 
-    # Is this week active?
+    # active = whether week is open to new submissions (in days following the games)
     def isActive(self):
-        if date.today() > self.date and date.today() <= self.date + self.active_period:
+        if date.today() >= self.date - timedelta(1) and date.today() <= self.date + self.active_period:
             return True
         else:
             return False
 
     @staticmethod
     def current_week():
-        year = Week.query.order_by(Week.date.desc()).first().date.year
-        weeks = Week.query.filter(func.extract('year', Week.date) == year).all()
+        # year = Week.query.order_by(Week.date.desc()).first().date.year
+        year = date.today().year
+        weeks = Week.weeksThisYear(year)
+        print(weeks)
+        # weeks = Week.query.filter(func.extract('year', Week.date) == year).all()
         for week in weeks:
             if week.isActive():
                 return week
