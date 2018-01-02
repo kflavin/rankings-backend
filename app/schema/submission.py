@@ -24,7 +24,7 @@ class WeeklyRanking(graphene.ObjectType):
     # week = graphene.String()
     # team = graphene.String()
 
-    def resolve_rankings(self, args, context, info):
+    def resolve_rankings(self, info):
         return self.rankings
 
 
@@ -37,17 +37,17 @@ class CreateSubmission(graphene.Mutation):
     submission = graphene.Field(Submission)
     # active = graphene.Boolean()
 
-    class Input:
+    class Arguments:
         weekid = graphene.Int()
         teams = graphene.List(graphene.String)
         userid = graphene.Int()
 
     @staticmethod
-    def mutate(cls, input, context, info):
-        weekid = input.get('weekid')
+    def mutate(root, info, **args):
+        weekid = args.get('weekid')
         # userid = input.get('userid')
-        user = get_user(context)
-        team_names = input.get('teams')
+        user = get_user(info.context)
+        team_names = args.get('teams')
 
         print("Your teams are %s" % str(team_names))
 

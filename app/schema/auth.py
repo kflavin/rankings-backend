@@ -45,7 +45,7 @@ class CreateUser(graphene.Mutation):
     user = graphene.Field(User)
     # active = graphene.Boolean()
 
-    class Input:
+    class Arguments:
         name = graphene.String()
         password = graphene.String()
         active = graphene.Boolean()
@@ -73,15 +73,15 @@ class LoginUser(graphene.Mutation):
     token = graphene.String()
     userid = graphene.Int()
 
-    class Input:
+    class Arguments:
         username = graphene.String()
         password = graphene.String()
 
     @staticmethod
-    def mutate(cls, input, context, info):
-        user = UserModel.query.filter_by(name=input.get('username')).first()
+    def mutate(root, info, **args):
+        user = UserModel.query.filter_by(name=args.get('username')).first()
         if user:
-            if user.verify_password(input.get('password')):
+            if user.verify_password(args.get('password')):
                 return LoginUser(token=user.encode_auth_token().decode(), userid=user.id)
 
         raise Exception("Invalid User")

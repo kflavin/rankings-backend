@@ -66,7 +66,7 @@ class Ranking(SQLAlchemyObjectType):
 #         # return CreateUser(id=user.id, name=user.name, password=user.password, active=user.active)
 #         return CreateUser(user=user)
 
-class Mutation(graphene.AbstractType):
+class Mutation(object):
     # name = "Mutations"
     create_user = CreateUser.Field()
     login_user = LoginUser.Field()

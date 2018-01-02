@@ -33,11 +33,11 @@ class Week(SQLAlchemyObjectType):
     active = graphene.Boolean()
     last = graphene.Boolean()
 
-    def resolve_active(self, args, context, info):
+    def resolve_active(self, info):
         print("resolving active...")
         return self.active
 
-    def resolve_last(self, args, context, info):
+    def resolve_last(self, info):
         print("resolving last...")
         return self.last
 
@@ -52,7 +52,7 @@ class Ranking(SQLAlchemyObjectType):
         model = RankingModel
 
 
-class Mutation(graphene.AbstractType):
+class Mutation(object):
     create_user = CreateUser.Field()
     login_user = LoginUser.Field()
     create_submission = CreateSubmission.Field()
@@ -63,19 +63,21 @@ class Person(graphene.ObjectType):
     age = graphene.Int()
     height = graphene.Int()
 
-    def resolve_name(self, args, context, info):
+    def resolve_name(self, info):
         print("resolving name...")
         return self.name
 
-    def resolve_age(self, args, context, info):
+    def resolve_age(self, info):
         print("resolving age")
-        print(args)
         return self.age
 
-    def resolve_height(self, args, context, info):
+    def resolve_height(self, info):
         print("resolving height")
-        print("now your height is " + str(args.get('height')))
-        print(args)
+        print(self)
+        print("height is:")
+        print(info.context)
+        # print("now your height is " + str(args.get('height')))
+        # print(args)
         return self.height
 
 class MyJson(graphene.ObjectType):
@@ -101,17 +103,17 @@ class MyJson(graphene.ObjectType):
         return self.json
 
 
-class Query(graphene.AbstractType):
+class Query(object):
     teams = graphene.List(Team)
-    weeks = graphene.List(Week, year=graphene.Int(), num=graphene.Int(default_value=0), id=graphene.Int(default_value=0))
-    submissions = graphene.List(Submission, id=graphene.Int(), year=graphene.Int(), num=graphene.Int(), user=graphene.String())
+    weeks = graphene.List(Week, year=graphene.Int(default_value=2015), num=graphene.Int(default_value=0), id=graphene.Int(default_value=0))
+    submissions = graphene.List(Submission, id=graphene.Int(required=False, default_value=None), year=graphene.Int(default_value=None), num=graphene.Int(default_value=None), user=graphene.String(required=False, default_value=None))
     rankings = graphene.List(Ranking)
     current_week = graphene.Field(Week)
     my_submission = graphene.Field(Submission)
     week_ranking = graphene.Field(WeeklyRanking, weeknum=graphene.Int(), year=graphene.Int())
     all_years = graphene.List(graphene.Int)
 
-    def resolve_all_years(self, args, context, info):
+    def resolve_all_years(self, info):
         print("getting all years")
         # wks = list(map(lambda w: w.date.year, WeekModel.query.group_by(func.extract('year', WeekModel.date)).all()))
         # db.session.query(func.extract('year', Week.date).label('h')).group_by('h').all()
@@ -142,36 +144,37 @@ class Query(graphene.AbstractType):
         }
         return MyJson(week=1, json=j)
 
-    def resolve_my_person(self, args, context, info):
+    def resolve_my_person(self, info, height, age, name):
         print("resolving person...")
-        print(args)
-        print("Your height is " + str(args.get('height')))
-        p= Person(name=args.get('name'), height=args.get('height'), age=args.get('age'))
+        # print(args)
+        # print("Your height is " + str(args.get('height')))
+        p= Person(name=name, height=height, age=age)
         print(p.name + " " + str(p.age) + " " + str(p.height))
         return p
 
-    def resolve_week_ranking(self, args, context, info):
-        num = args.get('weeknum')
-        year = args.get('year')
-        if not num:
+    def resolve_week_ranking(self, info, weeknum, year):
+        # num = args.get('weeknum')
+        # year = args.get('year')
+        if not weeknum:
             j = WeekModel.current_week_rankings()
         else:
-            j = WeekModel.week_rankings(num, year)
+            j = WeekModel.week_rankings(weeknum, year)
 
         return WeeklyRanking(rankings=j)
 
-    def resolve_current_week(self, args, context, info):
+    def resolve_current_week(self, info):
         # return WeekModel.query.order_by(WeekModel.date.desc()).first()
         return WeekModel.current_week()
 
-    def resolve_submissions(self, args, context, info):
-        num = args.get('num')
-        year = args.get('year')
-        user = args.get('user')
-        id = args.get('id')
+    def resolve_submissions(self, info, year, num, user, id=None):
+        # num = args.get('num')
+        # year = args.get('year')
+        # user = args.get('user')
+        # id = args.get('id')
+        print("getting submission...")
 
         if id:
-            return SubmissionModel.query.filter_by(id=args.get('id')).all()
+            return SubmissionModel.query.filter_by(id=id).all()
         else:
             # return SubmissionModel.query.all()
             user_id = UserModel.query.filter(UserModel.name.ilike(user)).first().id
@@ -181,13 +184,19 @@ class Query(graphene.AbstractType):
                 filter(WeekModel.num==num).join(UserModel).\
                 filter(UserModel.id == user_id).all()
 
-    @graphene.resolve_only_args
-    def resolve_teams(self):
+    # @graphene.resolve_only_args
+    def resolve_teams(self, info):
         return TeamModel.query.all()
 
-    def resolve_weeks(self, args, context, info):
-        year = args.get('year')
-        num = args.get('num')
+    def resolve_weeks(self, info, num, id, year ):
+        # year = args.get('year')
+        # num = args.get('num')
+        print("here I am")
+        print(self)
+        print(info) 
+        print(num)
+        print(id)
+        print(year)
 
         if year and num:
             # return WeekModel.query.filter(WeekModel.num == num).all()
@@ -222,12 +231,12 @@ class Query(graphene.AbstractType):
     # def resolve_rankings(self):
     #     return RankingModel.query.all()
 
-    def resolve_rankings(self, args, context, info):
+    def resolve_rankings(self, info):
         return RankingModel.query.all()
 
     # def resolve_my_submission(self, args, context, info):
-    def resolve_my_submission(self, args, context, info):
-        user = get_user(context)
+    def resolve_my_submission(self, info):
+        user = get_user(info.context)
         print("Looking for submissions from user %s" % user)
         if user:
             print("User is : " + str(user))
