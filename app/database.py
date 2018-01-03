@@ -181,7 +181,11 @@ def gen_week(d=date.today()):
         year = year - 1
 
     w = Week.query.filter(func.extract('year', Week.date) == year).order_by(Week.date.desc()).first()
-    new_week = Week(date=d, num=w.num+1)
+
+    if d.month == 1:
+        new_week = Week(date=d, num=0)
+    else:
+        new_week = Week(date=d, num=w.num+1)
 
     if bool(Week.query.filter(Week.date == new_week.date).first()):
         return None

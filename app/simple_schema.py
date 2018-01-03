@@ -179,6 +179,9 @@ class Query(object):
             # return SubmissionModel.query.all()
             user_id = UserModel.query.filter(UserModel.name.ilike(user)).first().id
 
+            # if num == 0:
+            #     year += 1
+
             return SubmissionModel.query.join(WeekModel).\
                 filter(func.extract('year', WeekModel.date) == year).\
                 filter(WeekModel.num==num).join(UserModel).\
@@ -221,6 +224,7 @@ class Query(object):
                 if week.isLast():
                     print("last is true")
                     week.last = True
+
             return allWeeks
 
     # @graphene.resolve_only_args

@@ -51,15 +51,15 @@ class CreateUser(graphene.Mutation):
         active = graphene.Boolean()
 
     @staticmethod
-    def mutate(cls, input, context, info):
-        if UserModel.query.filter_by(name = input.get('name')).first():
+    def mutate(root, info, **args):
+        if UserModel.query.filter_by(name = args.get('name')).first():
             raise Exception("User already exists.")
 
-        user = UserModel(name=input.get('name'),
-                         password=input.get('password'),
-                         active=input.get('active'))
+        user = UserModel(name=args.get('name'),
+                         password=args.get('password'),
+                         active=args.get('active'))
 
-        user.set_password(input.get('password'))
+        user.set_password(args.get('password'))
 
         # user = User(name="kyle2", password="password", active=input.get('active'))
 
