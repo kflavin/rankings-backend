@@ -214,8 +214,11 @@ class Query(object):
 
             # Use a query for allWeeks that also returns the following January
             # allWeeks =  WeekModel.query.filter(func.extract('year', WeekModel.date) == year).all()
-            allWeeks = WeekModel.query.filter(or_(func.extract('year', WeekModel.date) == year, \
-                    and_(func.extract('year', WeekModel.date) == year+1, func.extract('month', WeekModel.date) == 1))).all()
+            allWeeks = WeekModel.query.filter(
+                    or_(
+                        and_(func.extract('year', WeekModel.date) == year, func.extract('month', WeekModel.date) != 1),
+                        and_(func.extract('year', WeekModel.date) == year+1, func.extract('month', WeekModel.date) == 1)
+                        )).all()
             for week in allWeeks:
                 print("%s %s" % (week.date, week.active))
                 if week.isActive():
