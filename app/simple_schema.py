@@ -34,11 +34,9 @@ class Week(SQLAlchemyObjectType):
     last = graphene.Boolean()
 
     def resolve_active(self, info):
-        print("resolving active...")
         return self.active
 
     def resolve_last(self, info):
-        print("resolving last...")
         return self.last
 
 

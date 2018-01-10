@@ -49,10 +49,11 @@ class Week(db.Model):
     # Weeks this year in descending order (last week first)
     @staticmethod
     def weeksThisYear(year):
-        return Week.query.filter(or_(\
-                func.extract('year', Week.date) == year, \
-                and_(func.extract('year', Week.date) == year+1, \
-                     func.extract('month', Week.date) == 1))).order_by(Week.date.desc()).all()
+        return Week.query.filter(
+                    or_(
+                        and_(func.extract('year', Week.date) == year, func.extract('month', Week.date) != 1),
+                        and_(func.extract('year', Week.date) == year+1, func.extract('month', Week.date) == 1)
+                        )).order_by(Week.date.desc()).all()
 
     # Last game of the season (bowl games)
     @staticmethod
@@ -61,25 +62,32 @@ class Week(db.Model):
 
     # last = most recent week of complete rankings
     def isLast(self):
-        current_year = Week.query.order_by(Week.date.desc()).limit(1).first().date.year
+        today = date.today()
+        # current_year, current_month = today.year, today.month
+
+        # if current_month == 1:
+        #     current_year -= 1
+
+        # current_year = Week.query.order_by(Week.date.desc()).limit(1).first().date.year
+
         # w = Week.query.filter(func.extract('year', Week.date) == self.date.year).order_by(Week.date).all()[-1]
         # Last week of the season
-        w = Week.lastWeekThisYear(self.date.year)
-        
-        # if w.date.year < current_year:
-        #     return False
+        if self.date.month == 1:
+            current_year = self.date.year - 1
+        else:
+            current_year = self.date.year
 
+        w = Week.lastWeekThisYear(current_year)
+        
         # three days to submit final rankings
-        if date.today() > w.date + timedelta(3):
-            print("season is over")
+        if today > w.date + timedelta(3):
+            return False
             if self == w:
                 return True
             else:
                 return False
         else:
-            print("season is not over")
-            if date.today() > self.date and (date.today() <= self.date + timedelta(7)):
-                print("this is the current week")
+            if today > self.date and (today <= self.date + timedelta(7)):
                 return True
             else:
                 return False
