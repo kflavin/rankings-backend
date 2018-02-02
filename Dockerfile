@@ -1,7 +1,6 @@
 FROM alpine:3.7
 MAINTAINER Kyle Flavin
-# [200~docker run -it -e DATABASE_URL=postgresql://<user>@docker.for.mac.localhost:5432/table -p 5000:8000 rankings-backend:latest
-[201~
+# docker run -it -e DATABASE_URL=postgresql://<user>@docker.for.mac.localhost:5432/table -p 5000:8000 rankings-backend:latest
 
 RUN apk update && \
     apk add python3 py3-psycopg2 gcc python3-dev musl-dev libffi-dev && \
