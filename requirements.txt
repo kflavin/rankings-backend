@@ -12,3 +12,4 @@ graphene==2.0.1
 graphql-core==2.0
 gunicorn==19.7.1
 psycopg2==2.7.3.2
+Flask-Migrate==2.1.1

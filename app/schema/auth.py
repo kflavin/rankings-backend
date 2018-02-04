@@ -3,6 +3,9 @@ from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from app.models import User as UserModel
 from app import db
+
+from app.utils import sendMail
+
 session = db.session
 
 def get_user(context):
@@ -46,20 +49,24 @@ class CreateUser(graphene.Mutation):
     # active = graphene.Boolean()
 
     class Arguments:
+        email = graphene.String()
         name = graphene.String()
         password = graphene.String()
-        active = graphene.Boolean()
 
     @staticmethod
     def mutate(root, info, **args):
+        print("Create user...")
         if UserModel.query.filter_by(name = args.get('name')).first():
             raise Exception("User already exists.")
 
         user = UserModel(name=args.get('name'),
+                         email=args.get('email'),
                          password=args.get('password'),
-                         active=args.get('active'))
+                         active=False)
 
         user.set_password(args.get('password'))
+
+        sendMail("Kyle@kyle-flavin.com", user.email, "Rankings Registration", "Click this link to register... (add link here)", "html stuff here")
 
         # user = User(name="kyle2", password="password", active=input.get('active'))
 
@@ -82,7 +89,10 @@ class LoginUser(graphene.Mutation):
         user = UserModel.query.filter_by(name=args.get('username')).first()
         if user:
             if user.verify_password(args.get('password')):
-                return LoginUser(token=user.encode_auth_token().decode(), userid=user.id)
+                if user.active:
+                    return LoginUser(token=user.encode_auth_token().decode(), userid=user.id)
+                else:
+                    raise Exception("Please activate your account.")
 
         raise Exception("Invalid User")
 

@@ -1,6 +1,7 @@
 import datetime
 from datetime import date, timedelta
 from calendar import timegm
+import uuid
 
 import jwt
 import operator
@@ -246,8 +247,10 @@ class User(db.Model):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    email = Column(String)
     password = Column(String(255))
-    active = Column(Boolean())
+    active = Column(Boolean(), default=False)
+    confirmation_token = Column(String(36), default=uuid.uuid4)
 
     def set_password(self, password):
         self.password = bcrypt.generate_password_hash(password, 13).decode()
