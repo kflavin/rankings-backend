@@ -1,6 +1,7 @@
 import os
 from datetime import date
 from flask import g
+from flask_migrate import MigrateCommand
 from app.models import Week, Ranking, Submission, User, Team
 
 from app import create_app, db
@@ -15,6 +16,7 @@ app = create_app(os.environ.get("FLASK_CONFIG") or "default")
 from flask_script import Manager, Shell
 
 manager = Manager(app)
+manager.add_command('db', MigrateCommand)
 
 # configure shell and migration commands
 from sqlalchemy import func, and_, or_

@@ -4,6 +4,7 @@ from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 db = SQLAlchemy()
 
 from flask_graphql import GraphQLView
@@ -22,6 +23,8 @@ def create_app(config_name="default"):
     bcrypt.init_app(app)
     app.debug = True
     app.config.from_object(config[config_name])
+
+    migrate = Migrate(app, db)
 
     print("your url is: " + app.config['SQLALCHEMY_DATABASE_URI'])
 
