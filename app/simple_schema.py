@@ -13,7 +13,7 @@ from app.models import User as UserModel
 
 from flask import request
 
-from app.schema.auth import User, CreateUser, LoginUser, get_user
+from app.schema.auth import User, CreateUser, LoginUser, ConfirmUser, get_user
 from app.schema.submission import Submission, CreateSubmission, WeeklyRanking, get_submission
 
 from app import db
@@ -53,6 +53,7 @@ class Ranking(SQLAlchemyObjectType):
 class Mutation(object):
     create_user = CreateUser.Field()
     login_user = LoginUser.Field()
+    confirm_user = ConfirmUser.Field()
     create_submission = CreateSubmission.Field()
 
 
@@ -192,12 +193,6 @@ class Query(object):
     def resolve_weeks(self, info, num, id, year ):
         # year = args.get('year')
         # num = args.get('num')
-        print("here I am")
-        print(self)
-        print(info) 
-        print(num)
-        print(id)
-        print(year)
 
         if year and num:
             # return WeekModel.query.filter(WeekModel.num == num).all()

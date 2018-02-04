@@ -44,6 +44,35 @@ class User(SQLAlchemyObjectType):
         interfaces = (relay.Node,)
 
 
+class ConfirmUser(graphene.Mutation):
+    # This is what we're returning
+    user = graphene.Field(User)
+
+    class Arguments:
+        email = graphene.String()
+        token = graphene.String()
+
+    @staticmethod
+    def mutate(root, info, **args):
+        print("performing confirm mutation")
+        email = args.get('email').strip()
+        token = args.get('token').strip()
+        user = UserModel.query.filter_by(email=email).first()
+
+        if not user:
+            raise Exception("Error with confirmation.")
+        
+        if user.confirmation_token == token:
+            user.confirmation_token = "confirmed"
+            user.active = True
+            session.add(user)
+            session.commit()
+        else:
+            raise Exception("Could not confirm user.")
+
+        return ConfirmUser(user=user)
+
+
 class CreateUser(graphene.Mutation):
     user = graphene.Field(User)
     # active = graphene.Boolean()
