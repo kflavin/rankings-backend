@@ -2,7 +2,7 @@ import os
 from datetime import date
 from flask import g
 from flask_migrate import MigrateCommand
-from app.models import Week, Ranking, Submission, User, Team
+from app.models import Week, Ranking, Submission, User, Team, Role
 
 from app import create_app, db
 from app.database import init_db, gen_saturdays, gen_data, gen_week
@@ -21,7 +21,7 @@ manager.add_command('db', MigrateCommand)
 # configure shell and migration commands
 from sqlalchemy import func, and_, or_
 def make_shell_context():
-    return dict(app=app, db=db, Week=Week, Ranking=Ranking, Submission=Submission, User=User, Team=Team, func=func, and_=and_, or_=or_)
+    return dict(app=app, db=db, Role=Role, Week=Week, Ranking=Ranking, Submission=Submission, User=User, Team=Team, func=func, and_=and_, or_=or_)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 
 @manager.command

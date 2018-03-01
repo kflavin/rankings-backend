@@ -46,7 +46,7 @@ def init_db():
     db.metadata.drop_all(bind=db.engine)
     db.metadata.create_all(bind=db.engine)
 
-from app.models import User, Team, Week, Submission, Ranking
+from app.models import User, Role, Team, Week, Submission, Ranking
 
 def gen_data(weeks=13, num_positions=10):
     # create fixtures
@@ -62,12 +62,29 @@ def gen_data(weeks=13, num_positions=10):
     
     # Week.new()
 
+    # add roles
+    admin = Role(name="admin")
+    voter = Role(name="voter")
+    session.add_all([admin, voter])
+
     # add users
     kyle = User(name="Kyle")
     frank = User(name="Frank")
     jeff = User(name="Jeff")
     matt = User(name="Matt")
     brian = User(name="Brian")
+
+    kyle.active = True
+    frank.active = True
+    jeff.active = True
+    matt.active = True
+    brian.active = True
+
+    kyle.role = admin
+    frank.role = admin
+    jeff.role = voter
+    matt.role = voter
+    brian.role = voter
 
     kyle.set_password("kyle")
     frank.set_password("frank")

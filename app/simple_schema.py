@@ -10,10 +10,11 @@ from app.models import Submission as SubmissionModel
 from app.models import Team as TeamModel
 from app.models import Week as WeekModel
 from app.models import User as UserModel
+from app.models import Role as RoleModel
 
 from flask import request
 
-from app.schema.auth import User, CreateUser, LoginUser, ConfirmUser, get_user
+from app.schema.auth import User, Role, CreateUser, LoginUser, ConfirmUser, get_user, AuthQuery
 from app.schema.submission import Submission, CreateSubmission, WeeklyRanking, get_submission
 
 from app import db
@@ -252,7 +253,7 @@ class Query(object):
             raise Exception("User not logged in")
 
 
-class Queries(Query, graphene.ObjectType):
+class Queries(Query, AuthQuery, graphene.ObjectType):
     pass
 
 

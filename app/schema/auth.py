@@ -1,7 +1,7 @@
 import graphene
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
-from app.models import User as UserModel
+from app.models import User as UserModel, Role as RoleModel
 from app import db
 
 from app.utils import sendMail
@@ -38,11 +38,16 @@ def get_user(context):
         raise Exception("Not logged in")
     return None
 
+
 class User(SQLAlchemyObjectType):
     class Meta:
         model = UserModel
         interfaces = (relay.Node,)
 
+
+class Role(SQLAlchemyObjectType):
+    class Meta:
+        model = RoleModel
 
 class ConfirmUser(graphene.Mutation):
     # This is what we're returning
@@ -108,6 +113,7 @@ class CreateUser(graphene.Mutation):
 class LoginUser(graphene.Mutation):
     token = graphene.String()
     userid = graphene.Int()
+    roleid = graphene.Int()
 
     class Arguments:
         username = graphene.String()
@@ -119,7 +125,7 @@ class LoginUser(graphene.Mutation):
         if user:
             if user.verify_password(args.get('password')):
                 if user.active:
-                    return LoginUser(token=user.encode_auth_token().decode(), userid=user.id)
+                    return LoginUser(token=user.encode_auth_token().decode(), userid=user.id, roleid=user.role.id)
                 else:
                     raise Exception("Please activate your account.")
 
@@ -135,3 +141,13 @@ class LoginUser(graphene.Mutation):
 #     @staticmethod
 #     def mutate(root, input, context, info):
 #         user = "blah"
+
+class AuthQuery(object):
+    users = graphene.List(User)
+    roles = graphene.List(Role)
+
+    def resolve_users(self, info):
+        return UserModel.query.all()
+
+    def resolve_roles(self, info):
+        return RoleModel.query.all()

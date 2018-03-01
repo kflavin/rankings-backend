@@ -243,6 +243,18 @@ class Ranking(db.Model):
                                                self.team, self.submission)
 
 
+class Role(db.Model):
+    __tablename__ = 'role'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(16))
+
+    def __str__(self):
+        return "<Role: {} Name: {}>".format(self.id, self.name)
+
+    def __repr__(self):
+        return "<Role: {} Name: {}>".format(self.id, self.name)
+
+
 class User(db.Model):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
@@ -251,6 +263,9 @@ class User(db.Model):
     password = Column(String(255))
     active = Column(Boolean(), default=False)
     confirmation_token = Column(String(36), default=uuid.uuid4)
+
+    role_id = Column(Integer, ForeignKey('role.id'))
+    role = relationship(Role, backref=backref('users', uselist=True))
 
     def set_password(self, password):
         self.password = bcrypt.generate_password_hash(password, 13).decode()
