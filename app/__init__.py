@@ -50,6 +50,9 @@ def create_app(config_name="default"):
                          graphiql=True
                      ))
 
+    from .status import status
+    app.register_blueprint(status, url_prefix='/status')
+
     @app.teardown_appcontext
     def shutdown_session(exception=None):
         db.session.remove()
