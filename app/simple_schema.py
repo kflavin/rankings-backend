@@ -14,7 +14,7 @@ from app.models import Role as RoleModel
 
 from flask import request
 
-from app.schema.auth import User, Role, CreateUser, LoginUser, ConfirmUser, get_user, AuthQuery
+from app.schema.auth import User, Role, CreateUser, LoginUser, ConfirmUser, get_user, AuthQuery, RefreshUser
 from app.schema.submission import Submission, CreateSubmission, WeeklyRanking, get_submission
 
 from app import db
@@ -56,6 +56,7 @@ class Mutation(object):
     login_user = LoginUser.Field()
     confirm_user = ConfirmUser.Field()
     create_submission = CreateSubmission.Field()
+    refresh_user = RefreshUser.Field()
 
 
 class Person(graphene.ObjectType):

@@ -8,6 +8,21 @@ from app.utils import sendMail
 
 session = db.session
 
+# With a session
+def get_user2(token):
+    userid = UserModel.decode_auth_token(token)
+
+    if isinstance(userid, int) and userid > 0:
+        print("Decoded user id: " + str(userid))
+        user = UserModel.query.filter_by(id=userid).first()
+        if user:
+            print("found user: " + str(user))
+            return user
+    else:
+        print("userid not found " + str(userid))
+        raise Exception("Not logged in")
+
+# With a JWT
 def get_user(context):
     header = context.headers.get('Authorization')
     print("header is")
@@ -114,6 +129,7 @@ class LoginUser(graphene.Mutation):
     token = graphene.String()
     userid = graphene.Int()
     roleid = graphene.Int()
+    username = graphene.String()
 
     class Arguments:
         username = graphene.String()
@@ -125,7 +141,7 @@ class LoginUser(graphene.Mutation):
         if user:
             if user.verify_password(args.get('password')):
                 if user.active:
-                    return LoginUser(token=user.encode_auth_token().decode(), userid=user.id, roleid=user.role.id)
+                    return LoginUser(token=user.encode_auth_token().decode(), userid=user.id, roleid=user.role.id, username=user.name)
                 else:
                     raise Exception("Please activate your account.")
 
@@ -141,6 +157,24 @@ class LoginUser(graphene.Mutation):
 #     @staticmethod
 #     def mutate(root, input, context, info):
 #         user = "blah"
+
+class RefreshUser(graphene.Mutation):
+    token = graphene.String()
+    userid = graphene.Int()
+    roleid = graphene.Int()
+    username = graphene.String()
+
+    class Arguments:
+        token = graphene.String()
+
+    @staticmethod
+    def mutate(root, info, **args):
+        user = get_user2(args.get('token'))
+
+        if not user:
+            raise Exception("Not logged in...")
+
+        return RefreshUser(userid=user.id, roleid=user.role_id, username=user.name)
 
 class AuthQuery(object):
     users = graphene.List(User)
