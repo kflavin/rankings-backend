@@ -44,8 +44,12 @@ class CreateSubmission(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, **args):
+        print("Submitting items")
         weekid = args.get('weekid')
         # userid = input.get('userid')
+        print("Your cookie is")
+        print(info.context.cookies)
+        # user = get_user2(info.context.cookies.get('rankings'))
         user = get_user(info.context)
         team_names = args.get('teams')
 

@@ -10,6 +10,9 @@ session = db.session
 
 # With a session
 def get_user2(token):
+    if not token:
+        raise Exception("Empty token")
+
     userid = UserModel.decode_auth_token(token)
 
     if isinstance(userid, int) and userid > 0:
@@ -22,11 +25,33 @@ def get_user2(token):
         print("userid not found " + str(userid))
         raise Exception("Not logged in")
 
+# # With a JWT
+# def get_user3(context):
+#     print("keys....")
+#     print(type(context.cookies))
+#     print(context.cookies)
+#     print(context.cookies.get('rankings'))
+#     print("done")
+#     token = context.cookies.get('rankings')
+
+#     if not token:
+#         raise Exception("Invalid cookie")
+
+#     userid = UserModel.decode_auth_token(token)
+    
+#     if not userid:
+#         raise Exception("Invalid token")
+
+#     user = UserModel.query.filter_by(id=userid).first()
+
+#     if not user:
+#         raise Exception("User does not exist")
+
+#     return user
+
 # With a JWT
 def get_user(context):
     header = context.headers.get('Authorization')
-    print("header is")
-    print(header)
 
     print("header is: " + header)
     if header:

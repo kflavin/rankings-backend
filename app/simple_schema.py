@@ -238,7 +238,10 @@ class Query(object):
 
     # def resolve_my_submission(self, args, context, info):
     def resolve_my_submission(self, info):
+        # print(dir(info.context))
+        # print(info.context.cookies)
         user = get_user(info.context)
+        # user = None
         print("Looking for submissions from user %s" % user)
         if user:
             print("User is : " + str(user))
